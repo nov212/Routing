@@ -42,15 +42,15 @@ namespace Routing
                 end = rnd.Next(range * range);
             }
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            {
-                //s.PinConnect(obs, new int[] { start, end });
-                s.Heuristic(obs, new int[] { start, end });
-            }
-            sw.Stop();
-            System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
-            //Application.Run(Test());
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //{
+            //    //s.PinConnect(obs, new int[] { start, end });
+            //    s.Heuristic(obs, new int[] { start, end });
+            //}
+            //sw.Stop();
+           // System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
+            Application.Run(Test());
         }
 
         public static  System.Windows.Forms.Form Test()
@@ -66,7 +66,7 @@ namespace Routing
             fg.DrawObstruct(33, 37);
             fg.DrawObstruct(37, 97);
             Solver s = new Solver(obs);
-            s.Heuristic(obs, new int[] { 28,62,4 });
+            s.PinConnect(obs, new int[] { 28,62,4 });
             foreach (List<Conductor> trace in s.GetTrace())
                 fg.DrawLines(trace);
             return fg;

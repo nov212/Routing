@@ -61,6 +61,7 @@
     <Compile Include="Conductor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Subgraph.cs" />
     <EmbeddedResource Include="GraphicsForm.resx">
       <DependentUpon>GraphicsForm.cs</DependentUpon>
     </EmbeddedResource>

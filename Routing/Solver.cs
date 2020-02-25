@@ -53,19 +53,20 @@ namespace Routing
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-
+            //Subgraph subgraph = new Subgraph(g, pins);
                 groupNum++;
 
             //распространение волны от узла start
                 int start = pins[0];
                 GetPer(g, start);
-                inGroupTrace[start] = groupNum;
                     /*
                      * currentNode-обрабатываемый в текущий момент узел
                      * prev[i]-предшественник узла i
                      * cost[i]-стоимость пути до узла i
+                     * price-промежуточное значение, показывает стоимость пути до узла
                     */
-            int currentNode=0;
+            int currentNode;
+            int price;
             Queue<int> pinsQueue = new Queue<int>();
             int[] prev = new int[g.GetN()];
             int[] cost = new int[g.GetN()];
@@ -83,17 +84,12 @@ namespace Routing
                         cost[i] = -1;
                     }
 
-                    //запись значений cost и prev для соседей nodeInTrace
-                    foreach (int next in NextNode(currentNode, g))
+                    cost[currentNode] = 0;
+                    while (pinsQueue.Count!=0)
                     {
-                        pinsQueue.Enqueue(next);
-                        prev[next] = currentNode;
-                        cost[next] = 0;// Graph_Config.GetNodeLayer(currentNode);
-                    }
-                    pinsQueue.Dequeue();
-                    while (inGroupTrace[pinsQueue.Peek()] != groupNum)
-                    {
-                        currentNode = pinsQueue.Peek();
+                        currentNode = pinsQueue.Dequeue();
+                        if (inGroupTrace[currentNode] == groupNum || currentNode == start)
+                            break;
                         foreach (int next in NextNode(currentNode, g))
                         {
                             if (prev[next] == -1)
@@ -102,24 +98,23 @@ namespace Routing
                                 prev[next] = currentNode;
                             }
                             if (Math.Abs(prev[currentNode] - currentNode) == Math.Abs(next - currentNode))
-                                cost[currentNode]++;
+                                price=cost[currentNode]+1;
                             else
-                                cost[currentNode]--;
-                            if (cost[currentNode] > cost[next])
+                                price=cost[currentNode]+2;
+                            if (price<cost[next] || cost[next]==-1)
                             {
-                                cost[next] = cost[currentNode];
+                                cost[next] = price;
                                 prev[next] = currentNode;
                             }
                         }
-                        pinsQueue.Dequeue();
                     }
 
                     //построение трассы
-                    currentNode = pinsQueue.Dequeue();
                     while (prev[currentNode] != -1)
                     {
                         PinToPinTrace.Add(new Conductor(currentNode, prev[currentNode]));
                         inGroupTrace[currentNode] = groupNum;
+                        inGroupTrace[prev[currentNode]] = groupNum;
                         currentNode = prev[currentNode];
                     }
                     CondTrace.Add(PinToPinTrace);
