@@ -41,13 +41,6 @@ namespace Routing
             }
         }
 
-        //private IEnumerable<int> FreeAdj(IGraph obs,int node)
-        //{
-        //    foreach (int n in obs.GetAdj(node))
-        //        if (inGroupTrace[n] == 0)
-        //            yield return n;
-        //}
-
 
         public void PinConnect(IGraph g,int[] pins)
         {
@@ -159,6 +152,7 @@ namespace Routing
                     }
                 }
 
+                //новый коментарий
                 //построение трассы
                 if (currentNode == end || inGroupTrace[currentNode] == groupNum)
                 {
