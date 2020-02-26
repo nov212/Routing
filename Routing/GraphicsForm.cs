@@ -21,6 +21,7 @@ namespace Routing
         private const int GRID_WIDTH = 1;
         private Color frameColor = System.Drawing.Color.White;
         private const int ALINGMENT = 15;
+        private static Random rand = new Random();
         public frm_grid(int rows, int cols, int scale)
         {
             this.ROWS=rows;
@@ -71,7 +72,7 @@ namespace Routing
 
         public void DrawLines(List<Conductor> obs)
         {
-            Random rand = new Random();
+            //Random rand = new Random();
                 System.Drawing.Color color = System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
                 Pen NewPen = new Pen(color, 3);
             //foreach (List<Conductor> trace in obs)

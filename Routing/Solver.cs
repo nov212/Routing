@@ -41,24 +41,26 @@ namespace Routing
             }
         }
 
-        //private IEnumerable<int> FreeAdj(IGraph obs,int node)
-        //{
-        //    foreach (int n in obs.GetAdj(node))
-        //        if (inGroupTrace[n] == 0)
-        //            yield return n;
-        //}
-
 
         public void PinConnect(IGraph g,int[] pins)
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-            //Subgraph subgraph = new Subgraph(g, pins);
-                groupNum++;
 
-            //распространение волны от узла start
-                int start = pins[0];
-                GetPer(g, start);
+            //Из сетки g выделяем все треки, на которых располагаются
+            //компоненты из pins и ищем пути на новой сетке. 
+            //Если на построенной сетке нет путей, соединяющих все компоненты,
+            //ищем пути на исходной.
+            Subgraph subgraph = new Subgraph(g, pins);
+            int start = pins[0];
+            GetPer(subgraph, start);
+            foreach (int pin in pins)
+                if (!Graph_Config.ContainLeft(pin))
+                {
+                    GetPer(g, start);
+                    break;
+                }
+            groupNum++;
                     /*
                      * currentNode-обрабатываемый в текущий момент узел
                      * prev[i]-предшественник узла i
@@ -180,37 +182,6 @@ namespace Routing
         {
             return Math.Abs(grid.GetRow(start) - grid.GetRow(end)) + Math.Abs(grid.GetCol(start) - grid.GetCol(end));
         }
-        //public List<Conductor> FindAllWaysBetweenPins(IGraph g, int start, int end)
-        //{
-        //    groupNum++;
-        //    List<int>[] prev=new List<int>[g.GetN()];
-        //    List<Conductor> ways = new List<Conductor>();
-        //    Queue<int> pinsQueue = new Queue<int>();
-        //    for (int i = 0; i < g.GetN(); i++)
-        //        prev[i] = null;
-        //    GetPer(g, start);
-        //    int currentNode = end;
-        //    pinsQueue.Enqueue(end);
-        //    while(currentNode!=start)
-        //    {
-        //        currentNode = pinsQueue.Peek();
-        //        foreach(int next in NextNode(currentNode, g))
-        //        {
-        //            if (prev[next] == null)
-        //            {
-        //                prev[next] = new List<int>();
-        //                pinsQueue.Enqueue(next);
-        //            }
-        //            prev[next].Add(currentNode);
-        //        }
-        //        pinsQueue.Dequeue();
-        //    }
-        //    for (int i = 0; i < g.GetN(); i++)
-        //        if (prev[i] != null)
-        //            foreach (int n in prev[i])
-        //                ways.Add(new Conductor(i, n));
-        //    return ways;
-        //}
 
         private IEnumerable<int> NextNode(int v, IGraph g)
         {

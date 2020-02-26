@@ -14,7 +14,7 @@ namespace Routing
         private readonly int[] distance;    //уровень вершины i
         private int RGT;                //разделитель на правую и левую части массива num
 
-        private bool ContainLeft(int num) { return (pos[num] < RGT); }
+        public bool ContainLeft(int num) { return (pos[num] < RGT); }
         public void Flip(int pos1, int pos2)
         {
             int temp = num[pos1];
