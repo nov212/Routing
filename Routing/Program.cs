@@ -59,14 +59,15 @@ namespace Routing
             int range = 10;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
-            obs.SetObstructZone(30, 31);
-            obs.SetObstructZone(33, 37);
-            obs.SetObstructZone(37, 97);
-            fg.DrawObstruct(30, 31);
-            fg.DrawObstruct(33, 37);
-            fg.DrawObstruct(37, 97);
+            obs.SetObstructZone(31, 44);
+            //obs.SetObstructZone(33, 37);
+            //obs.SetObstructZone(37, 97);
+            //fg.DrawObstruct(30, 31);
+            fg.DrawObstruct(31, 44);
+            //fg.DrawObstruct(37, 97);
             Solver s = new Solver(obs);
-            s.PinConnect(obs, new int[] { 28,62,4 });
+            s.PinConnect(obs, new int[] { 36,76,73,23,57 });
+            s.PinConnect(obs, new int[] { 54, 52, 85, 28 });
             foreach (List<Conductor> trace in s.GetTrace())
                 fg.DrawLines(trace);
             return fg;

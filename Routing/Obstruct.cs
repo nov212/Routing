@@ -42,14 +42,14 @@ namespace Routing
         {
             int cols = sourceGraph.Cols;
             int firstX = upLeft / cols;
-            int firstY = upLeft % cols;
+            int firstY= upLeft % cols;
             int secondX = downRight / cols;
             int secondY = downRight % cols;
             try
             {
                 for (int i = firstX; i <= secondX; i++)
                     for (int j = firstY; j <= secondY; j++)
-                        obs[this.sourceGraph.ToNum(i, j)] = true;
+                        obs[this.sourceGraph.ToNum(i,j)] = true;
             }
             catch (IndexOutOfRangeException e)
             {

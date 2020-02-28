@@ -152,7 +152,6 @@ namespace Routing
                     }
                 }
 
-                //новый коментарий
                 //построение трассы
                 if (currentNode == end || inGroupTrace[currentNode] == groupNum)
                 {
@@ -174,37 +173,6 @@ namespace Routing
         {
             return Math.Abs(grid.GetRow(start) - grid.GetRow(end)) + Math.Abs(grid.GetCol(start) - grid.GetCol(end));
         }
-        //public List<Conductor> FindAllWaysBetweenPins(IGraph g, int start, int end)
-        //{
-        //    groupNum++;
-        //    List<int>[] prev=new List<int>[g.GetN()];
-        //    List<Conductor> ways = new List<Conductor>();
-        //    Queue<int> pinsQueue = new Queue<int>();
-        //    for (int i = 0; i < g.GetN(); i++)
-        //        prev[i] = null;
-        //    GetPer(g, start);
-        //    int currentNode = end;
-        //    pinsQueue.Enqueue(end);
-        //    while(currentNode!=start)
-        //    {
-        //        currentNode = pinsQueue.Peek();
-        //        foreach(int next in NextNode(currentNode, g))
-        //        {
-        //            if (prev[next] == null)
-        //            {
-        //                prev[next] = new List<int>();
-        //                pinsQueue.Enqueue(next);
-        //            }
-        //            prev[next].Add(currentNode);
-        //        }
-        //        pinsQueue.Dequeue();
-        //    }
-        //    for (int i = 0; i < g.GetN(); i++)
-        //        if (prev[i] != null)
-        //            foreach (int n in prev[i])
-        //                ways.Add(new Conductor(i, n));
-        //    return ways;
-        //}
 
         private IEnumerable<int> NextNode(int v, IGraph g)
         {
