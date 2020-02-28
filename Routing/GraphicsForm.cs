@@ -72,15 +72,11 @@ namespace Routing
 
         public void DrawLines(List<Conductor> obs)
         {
-            //Random rand = new Random();
                 System.Drawing.Color color = System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
                 Pen NewPen = new Pen(color, 3);
-            //foreach (List<Conductor> trace in obs)
-            //{
                 foreach (Conductor cond in obs)
                     gr.DrawLine(NewPen, (cond.FirstNode % COLS) * SCALE + ALINGMENT, (cond.FirstNode / COLS) * SCALE + ALINGMENT,
                         (cond.SecondNode % COLS) * SCALE + ALINGMENT, (cond.SecondNode / COLS) * SCALE + ALINGMENT);
-            //}
         }
 
         public void DrawObstruct(int upLeft, int downRight)

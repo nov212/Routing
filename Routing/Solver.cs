@@ -46,11 +46,6 @@ namespace Routing
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-
-            //Из сетки g выделяем все треки, на которых располагаются
-            //компоненты из pins и ищем пути на новой сетке. 
-            //Если на построенной сетке нет путей, соединяющих все компоненты,
-            //ищем пути на исходной.
             Subgraph subgraph = new Subgraph(g, pins);
             int start = pins[0];
             GetPer(subgraph, start);
