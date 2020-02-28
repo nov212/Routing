@@ -46,12 +46,16 @@ namespace Routing
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-            //Subgraph subgraph = new Subgraph(g, pins);
-                groupNum++;
-
-            //распространение волны от узла start
-                int start = pins[0];
-                GetPer(g, start);
+            Subgraph subgraph = new Subgraph(g, pins);
+            int start = pins[0];
+            GetPer(subgraph, start);
+            foreach (int pin in pins)
+                if (!Graph_Config.ContainLeft(pin))
+                {
+                    GetPer(g, start);
+                    break;
+                }
+            groupNum++;
                     /*
                      * currentNode-обрабатываемый в текущий момент узел
                      * prev[i]-предшественник узла i

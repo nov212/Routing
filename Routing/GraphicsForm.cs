@@ -22,6 +22,7 @@ namespace Routing
         private Color frameColor = System.Drawing.Color.White;
         private static Random rand=new Random();
         private const int ALINGMENT = 15;
+        private static Random rand = new Random();
         public frm_grid(int rows, int cols, int scale)
         {
             this.ROWS=rows;
@@ -74,12 +75,9 @@ namespace Routing
         {
                 System.Drawing.Color color = System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
                 Pen NewPen = new Pen(color, 3);
-            //foreach (List<Conductor> trace in obs)
-            //{
                 foreach (Conductor cond in obs)
                     gr.DrawLine(NewPen, (cond.FirstNode % COLS) * SCALE + ALINGMENT, (cond.FirstNode / COLS) * SCALE + ALINGMENT,
                         (cond.SecondNode % COLS) * SCALE + ALINGMENT, (cond.SecondNode / COLS) * SCALE + ALINGMENT);
-            //}
         }
 
         public void DrawObstruct(int upLeft, int downRight)

@@ -8,24 +8,21 @@ namespace Routing
 {
     class Subgraph: IGraph
     {
-        IGraph sourceGraph;
-        bool[] track;           
-        //track предназначен для обозначения узлов, входящих в подграф
-        //track[n] принимает значение true, если узел n принадлежит подграфу
+        private IGraph sourceGraph;
+        private readonly bool[] vertical;
+        private readonly bool[] horizontal;
 
         public Subgraph(IGraph graph, int[] pins)
         {
             sourceGraph = graph;
-            track = new bool[graph.GetN()];
-            int Cols=GetCol(graph.GetN()-1)+1;
-            int Rows=GetRow(graph.GetN()-1)+1;
+            int Cols=graph.GetCol(graph.GetN()-1)+1;
+            int Rows=graph.GetRow(graph.GetN()-1)+1;
+            vertical= new bool[Cols];
+            horizontal = new bool[Rows];
             foreach (int pin in pins)
             {
-                track[pin] = true;
-                for (int i = GetCol(pin); i < GetN(); i += Cols)
-                    track[i] = true;
-                for (int i = 0; i < Cols; i++)
-                    track[GetRow(pin) * Cols + i] = true;
+                vertical[graph.GetCol(pin)] = true;
+                horizontal[graph.GetRow(pin)] = true;
             }
         }
         public int GetN()
@@ -36,7 +33,7 @@ namespace Routing
         public IEnumerable<int> GetAdj(int node)
         {
             foreach (int adj in sourceGraph.GetAdj(node))
-                if (track[adj] == true)
+                if (vertical[this.GetCol(adj)] == true || horizontal[this.GetRow(adj)]==true)
                     yield return adj;
         }
 

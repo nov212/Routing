@@ -80,6 +80,42 @@ namespace Routing.Tests
         }
 
         [TestMethod]
+        public void PinConnect_RouteTwoCircuits()
+        {
+            Graph simpleGraph = new Graph(6, 6);
+            Solver s = new Solver(simpleGraph);
+            int[] pins1 = { 7,29 };
+            int[] pins2 = { 30, 14, 10 };
+            s.PinConnect(simpleGraph, pins1);
+            s.PinConnect(simpleGraph, pins2);
+            List<Conductor> expected = new List<Conductor>();
+            List<Conductor> actual = new List<Conductor>();
+            expected.Add(new Conductor(29,28));
+            expected.Add(new Conductor(28,27));
+            expected.Add(new Conductor(27,26));
+            expected.Add(new Conductor(26,25));
+            expected.Add(new Conductor(25,19));
+            expected.Add(new Conductor(19,13));
+            expected.Add(new Conductor(13, 7));
+            expected.Add(new Conductor(14,8));
+            expected.Add(new Conductor(8,2));
+            expected.Add(new Conductor(2,1));
+            expected.Add(new Conductor(1,0));
+            expected.Add(new Conductor(0,6));
+            expected.Add(new Conductor(6,12));
+            expected.Add(new Conductor(12,18));
+            expected.Add(new Conductor(18,24));
+            expected.Add(new Conductor(24,30));
+            expected.Add(new Conductor(10,9));
+            expected.Add(new Conductor(9,8));
+            foreach (List<Conductor> trace in s.GetTrace())
+                foreach (Conductor cond in trace)
+                    actual.Add(cond);
+            Assert.IsTrue(AreEqualTraces(expected, actual));
+
+        }
+
+        [TestMethod]
         public void HeuristicTestForGridWithoutObstruct()
         {
             Graph simpleGraph = new Graph(5, 5);

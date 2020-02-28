@@ -26,7 +26,7 @@ namespace Routing
             int point = 0;
             int obsPoints =(int)(range * range *0.1);
             Random rnd = new Random();
-            for (int i = 0; i < obsPoints; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 point = rnd.Next(range * range);
                 while (obs[point] == true)
@@ -42,14 +42,14 @@ namespace Routing
                 end = rnd.Next(range * range);
             }
 
-            //Stopwatch sw = new Stopwatch();
-            //sw.Start();
-            //{
-            //    //s.PinConnect(obs, new int[] { start, end });
-            //    s.Heuristic(obs, new int[] { start, end });
-            //}
-            //sw.Stop();
-           // System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            {
+                s.PinConnect(obs, new int[] { start, end });
+                //s.Heuristic(obs, new int[] { start, end });
+            }
+            sw.Stop();
+            System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
             Application.Run(Test());
         }
 
@@ -59,17 +59,6 @@ namespace Routing
             int range = 10;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
-            obs.SetObstructZone(31, 44);
-            //obs.SetObstructZone(33, 37);
-            //obs.SetObstructZone(37, 97);
-            //fg.DrawObstruct(30, 31);
-            fg.DrawObstruct(31, 44);
-            //fg.DrawObstruct(37, 97);
-            Solver s = new Solver(obs);
-            s.PinConnect(obs, new int[] { 36,76,73,23,57 });
-            s.PinConnect(obs, new int[] { 54, 52, 85, 28 });
-            foreach (List<Conductor> trace in s.GetTrace())
-                fg.DrawLines(trace);
             return fg;
         }
     }
