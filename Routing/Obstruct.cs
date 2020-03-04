@@ -41,10 +41,10 @@ namespace Routing
         public void SetObstructZone(int upLeft, int downRight)
         {
             int cols = sourceGraph.Cols;
-            int firstX = upLeft / cols;
-            int firstY= upLeft % cols;
-            int secondX = downRight / cols;
-            int secondY = downRight % cols;
+            int firstX = GetRow(upLeft);
+            int firstY= GetCol(upLeft);
+            int secondX = GetRow(downRight);
+            int secondY = GetCol(downRight);
             try
             {
                 for (int i = firstX; i <= secondX; i++)

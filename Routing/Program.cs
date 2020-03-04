@@ -42,23 +42,30 @@ namespace Routing
                 end = rnd.Next(range * range);
             }
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            {
-                s.PinConnect(obs, new int[] { start, end });
-                //s.Heuristic(obs, new int[] { start, end });
-            }
-            sw.Stop();
-            System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //{
+            //    s.PinConnect(obs, new int[] { start, end });
+            //    //s.Heuristic(obs, new int[] { start, end });
+            //}
+            //sw.Stop();
+            //System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
             Application.Run(Test());
         }
 
         public static  System.Windows.Forms.Form Test()
         {
-            frm_grid fg = new frm_grid(10, 10, 55);
+            frm_grid fg = new frm_grid(10, 10, 40);
             int range = 10;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
+            obs.SetObstructZone(14, 35);
+            Solver s = new Solver(obs);
+            s.PinConnect(obs, new int[] { 36, 23, 57, 76, 73 });
+            s.PinConnect(obs, new int[] { 28, 52, 54, 85 });
+            foreach (var trace in s.GetTrace())
+                fg.DrawLines(trace);
+            fg.DrawObstruct(14, 35);
             return fg;
         }
     }

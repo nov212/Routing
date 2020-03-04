@@ -22,7 +22,6 @@ namespace Routing
         private Color frameColor = System.Drawing.Color.White;
         private static Random rand=new Random();
         private const int ALINGMENT = 15;
-        private static Random rand = new Random();
         public frm_grid(int rows, int cols, int scale)
         {
             this.ROWS=rows;
