@@ -41,15 +41,6 @@ namespace Routing
                 start = rnd.Next(range * range);
                 end = rnd.Next(range * range);
             }
-
-            //Stopwatch sw = new Stopwatch();
-            //sw.Start();
-            //{
-            //    s.PinConnect(obs, new int[] { start, end });
-            //    //s.Heuristic(obs, new int[] { start, end });
-            //}
-            //sw.Stop();
-            //System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
             Application.Run(Test());
         }
 
