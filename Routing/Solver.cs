@@ -48,13 +48,16 @@ namespace Routing
             List<Conductor> PinToPinTrace = new List<Conductor>();
             Subgraph subgraph = new Subgraph(g, pins);
             int start = pins[0];
-            GetPer(subgraph, start);
-            foreach (int pin in pins)
-                if (!Graph_Config.ContainLeft(pin))
-                {
-                    GetPer(g, start);
-                    break;
-                }
+            int radius = 5;
+                foreach (int pin in pins)
+                    subgraph.Extend(pin, radius);
+                    GetPer(subgraph, start);
+                foreach (int pin in pins)
+                    if (!Graph_Config.ContainLeft(pin))
+                    {
+                        GetPer(g, start);
+                        break;
+                    }
             groupNum++;
                     /*
                      * currentNode-обрабатываемый в текущий момент узел

@@ -9,34 +9,6 @@ namespace Routing
 {
     class PriorityQueue
     {
-        //class Pair
-        //{
-        //    readonly private int priority;
-        //    readonly private int value;
-
-        //    public Pair(int priority, int value)
-        //    {
-        //        this.priority = priority;
-        //        this.value = value;
-        //    }
-
-        //    public int Priority
-        //    {
-        //        get
-        //        {
-        //            return priority;
-        //        }
-        //    }
-
-        //    public int Value
-        //    {
-        //        get
-        //        {
-        //            return value;
-        //        }
-        //    }
-        //}
-
         private readonly List<KeyValuePair<int, int>> Data;
         public int Count { get { return Data.Count; } }
 

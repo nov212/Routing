@@ -25,6 +25,37 @@ namespace Routing
                 horizontal[graph.GetRow(pin)] = true;
             }
         }
+
+        public bool AddVertical(int col)
+        {
+            if (col < 0 || col >= vertical.Length)
+                return false;
+            vertical[col] = true;
+            return true;
+        }
+        public bool AddHorizontal(int row)
+        {
+            if (row < 0 || row >= horizontal.Length)
+                return false;
+            horizontal[row] = true;
+            return true;
+        }
+
+        public bool Extend(int pin, int radius)
+        {
+            if (pin < 0 || pin >= GetN())
+                return false;
+            int col = GetCol(pin);
+            int row = GetRow(pin);
+            for (int i = 0; i <= radius; i++)
+            {
+                AddVertical(col + i);
+                AddVertical(col - i);
+                AddHorizontal(row + i);
+                AddHorizontal(row - i);
+            }
+            return true;
+        }
         public int GetN()
         {
             return sourceGraph.GetN();

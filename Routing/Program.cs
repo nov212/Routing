@@ -19,14 +19,14 @@ namespace Routing
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            int range = 10000;
+            int range = 5000;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
             Solver s = new Solver(obs);
             int point = 0;
             int obsPoints =(int)(range * range *0.1);
             Random rnd = new Random();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < obsPoints; i++)
             {
                 point = rnd.Next(range * range);
                 while (obs[point] == true)
@@ -41,7 +41,12 @@ namespace Routing
                 start = rnd.Next(range * range);
                 end = rnd.Next(range * range);
             }
-            Application.Run(Test());
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s.PinConnect(obs, new int[] { start, end });
+            sw.Stop();
+            System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
+            //Application.Run(Test());
         }
 
         public static  System.Windows.Forms.Form Test()
