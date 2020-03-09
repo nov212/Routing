@@ -47,17 +47,17 @@ namespace Routing
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
             Subgraph subgraph = new Subgraph(g, pins);
+            int[] radius = new int[] { 5, 20, 50, 100 };
+            bool flag=false;
             int start = pins[0];
-            int radius = 5;
-                foreach (int pin in pins)
-                    subgraph.Extend(pin, radius);
-                    GetPer(subgraph, start);
-                foreach (int pin in pins)
-                    if (!Graph_Config.ContainLeft(pin))
-                    {
-                        GetPer(g, start);
-                        break;
-                    }
+            foreach (int rad in radius)
+                if (ConnectOnSubgraph(subgraph,pins, rad)==true)
+                {
+                    flag = true;
+                    break;
+                }
+            if (!flag)
+                GetPer(g, start);
             groupNum++;
                     /*
                      * currentNode-обрабатываемый в текущий момент узел
@@ -121,6 +121,17 @@ namespace Routing
                     pinsQueue.Clear();
                 }
             }
+        }
+
+        private bool ConnectOnSubgraph(Subgraph sub,int[] pins, int radius)
+        {
+            foreach (int pin in pins)
+                sub.Extend(pin, radius);
+            GetPer(sub, pins[0]);
+            foreach (int pin in pins)
+                if (!Graph_Config.ContainLeft(pin))
+                    return false;
+            return true;
         }
 
         public void Heuristic(IGraph grid, int[] pins)
