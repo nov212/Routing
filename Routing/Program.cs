@@ -19,11 +19,9 @@ namespace Routing
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            int[][] circuits = new int[10][];
-            for (int i = 0; i < 10; i++)
-                circuits[i] = new int[5];
+            List<int[]> circuits = new List<int[]>();
             List<int> exist = new List<int>();
-            int range = 6000;
+            int range = 10000;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
             Solver s = new Solver(obs);
@@ -37,26 +35,24 @@ namespace Routing
                     point = rnd.Next(range * range);
                 obs[point] = true;
             }
-            for (int i=0;i<10;i++)
-                for (int j=0;j<5;j++)
+
+            for (int i = 0; i < 10; i++)
+            {
+                int[] circuit = new int[5];
+                for (int j = 0; j < 5; j++)
                 {
                     point = rnd.Next(obs.GetN());
                     while (obs[point] == true || exist.Contains(point))
-                        point = rnd.Next(range*range);
+                        point = rnd.Next(range * range);
                     exist.Add(point);
-                    circuits[i][j] = point;
+                    circuit[j] = point;
                 }
-            //int start = rnd.Next(range * range);
-            //System.Threading.Thread.Sleep(1000);
-            //int end = rnd.Next(range * range);
-            //while (start == end || obs[start] == true || obs[end] == true)
-            //{
-            //    start = rnd.Next(range * range);
-            //    end = rnd.Next(range * range);
-            //}
+                circuits.Add(circuit);
+            }
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            foreach (int[] circ in circuits)
+           foreach (int[] circ in circuits)
                 s.PinConnect(obs,circ);
             sw.Stop();
             System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);

@@ -46,12 +46,12 @@ namespace Routing
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-            Subgraph subgraph = new Subgraph(g, pins);
-            int[] radius = new int[] { 5, 20, 50, 100 };
-            bool flag=false;
+           Subgraph subgraph = new Subgraph(g, pins);
+           int[] radius = new int[] { 5, 20, 50, 100 };
+           bool flag=false;
             int start = pins[0];
             foreach (int rad in radius)
-                if (ConnectOnSubgraph(subgraph,pins, rad)==true)
+                if (ConnectOnSubgraph(subgraph, pins, rad) == true)
                 {
                     flag = true;
                     break;
