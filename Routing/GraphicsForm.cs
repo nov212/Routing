@@ -22,20 +22,22 @@ namespace Routing
         private Color frameColor = System.Drawing.Color.White;
         private static Random rand=new Random();
         private const int ALINGMENT = 15;
+        private List<int> obstruct;
         public frm_grid(int rows, int cols, int scale)
         {
             this.ROWS=rows;
             this.COLS=cols;
             this.SCALE = scale;
+            obstruct = new List<int>();
             InitPictureBox();
             InitFrame();
-            DrawGrid();
         }
 
         private void InitFrame()
         {
             InitializeComponent();
             this.ClientSize = new System.Drawing.Size((COLS-1)*SCALE+2*ALINGMENT, (ROWS-1)*SCALE+2*ALINGMENT);
+            this.MouseWheel += new MouseEventHandler(frm_grid_MouseWheel);
         }
 
         private void InitPictureBox()
@@ -58,6 +60,7 @@ namespace Routing
             for (int i = 0; i < ROWS ; i++)
                 gr.DrawLine(gridpen, 0, ALINGMENT+SCALE*i, pb_grid.Width, ALINGMENT+SCALE*i);
             NumerateNodes();
+            DrawObstruct();
             pb_grid.Image = bmp;
         }
 
@@ -79,30 +82,55 @@ namespace Routing
                         (cond.SecondNode % COLS) * SCALE + ALINGMENT, (cond.SecondNode / COLS) * SCALE + ALINGMENT);
         }
 
-        public void DrawObstruct(int upLeft, int downRight)
+        public void SetObstruct(int upLeft, int downRight)
         {
             int firstX = upLeft % COLS;
             int firstY = upLeft / COLS;
             int secondX = downRight % COLS;
             int secondY = downRight / COLS;
-            for (int i = firstX; i <= secondX; i++)
-                for (int j = firstY; j <= secondY; j++)
-                {
-                    //линия влево
-                    gr.DrawLine(new Pen(frameColor, GRID_WIDTH), i * SCALE + ALINGMENT, j * SCALE + ALINGMENT, (i - 1) * SCALE + ALINGMENT + GRID_WIDTH, j * SCALE + ALINGMENT);
-                    //линия вправо
-                    gr.DrawLine(new Pen(frameColor, GRID_WIDTH), i * SCALE + ALINGMENT, j * SCALE + ALINGMENT, (i + 1) * SCALE + ALINGMENT - GRID_WIDTH, j * SCALE + ALINGMENT);
-                    //линия вниз
-                    gr.DrawLine(new Pen(frameColor, GRID_WIDTH), i * SCALE + ALINGMENT, j * SCALE + ALINGMENT, i * SCALE + ALINGMENT, (j + 1) * SCALE + ALINGMENT - GRID_WIDTH);
-                    //линия вверх
-                    gr.DrawLine(new Pen(frameColor, GRID_WIDTH), i * SCALE + ALINGMENT, j * SCALE + ALINGMENT, i * SCALE + ALINGMENT, (j - 1) * SCALE + ALINGMENT + GRID_WIDTH);
-                }
+            for (int i = firstY; i <= secondY; i++)
+                for (int j = firstX; j <= secondX; j++)
+                    obstruct.Add(i * COLS + j);
         }
 
+        private void DrawObstruct()
+        {
+            foreach (int obs in obstruct)
+            {
+                int X = obs % COLS;
+                int Y = obs / COLS;
+                //линия влево
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X - 1) * SCALE + ALINGMENT + GRID_WIDTH, Y * SCALE + ALINGMENT);
+                //линия вправо
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X + 1) * SCALE + ALINGMENT - GRID_WIDTH, Y * SCALE + ALINGMENT);
+                //линия вниз
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y + 1) * SCALE + ALINGMENT - GRID_WIDTH);
+                //линия вверх
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y - 1) * SCALE + ALINGMENT + GRID_WIDTH);
+            }
+        }
 
-        private void frm_grid_Load(object sender, EventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            DrawGrid();
+        }
+
+        private void frm_grid_MouseWheel(object sender, MouseEventArgs e)
         {
 
+                if (e.Delta > 0)
+                {
+                    if (SCALE < 70)
+                        SCALE += 10;
+                }
+                else
+                {
+                    if (SCALE>20)
+                        SCALE -= 10;
+                }
+                gr.Clear(frameColor);
+                DrawGrid();
         }
     }
 }
