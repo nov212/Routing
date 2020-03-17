@@ -55,30 +55,35 @@ namespace Routing
             pb_grid.BackColor = frameColor;
             pb_grid.MouseDown += new MouseEventHandler(frm_grid_MouseDown);
             pb_grid.MouseMove += new MouseEventHandler(frm_grid_MouseMove);
+            pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
             this.Controls.Add(pb_grid);
-            bmp = new Bitmap(pb_grid.Width, pb_grid.Height);
+        }
+
+        private void InitPicture()
+        {
+            bmp = new Bitmap((COLS - 1) * SCALE + 2 * ALINGMENT, (ROWS - 1) * SCALE + 2 * ALINGMENT);
             gr = Graphics.FromImage(bmp);
-        }
-
-
-        private void DrawGrid()
-        {
-            gr.DrawImage(sourcePicture, new Rectangle(new Point(0, 0), pb_grid.Size), new Rectangle(new Point(frameLocation_x, frameLocation_y), pb_grid.Size), GraphicsUnit.Pixel);
-            pb_grid.Image = bmp;
-        }
-
-        private void DrawSourcePicture()
-        {
-            sourcePicture = new Bitmap((COLS - 1) * SCALE + 2 * ALINGMENT, (ROWS - 1) * SCALE + 2 * ALINGMENT);
-            sourcegr = Graphics.FromImage(sourcePicture);
             Pen gridpen = new Pen(Color.Gray, GRID_WIDTH);
             for (int i = 0; i < COLS; i++)
-                sourcegr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, sourcePicture.Height);
+                gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, bmp.Height);
             for (int i = 0; i < ROWS; i++)
-                sourcegr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, sourcePicture.Width, ALINGMENT + SCALE * i);
+                gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, bmp.Width, ALINGMENT + SCALE * i);
             NumerateNodes();
             DrawObstruct();
+            //pb_grid.Image = bmp;
         }
+
+        //private void DrawGrid()
+        //{
+        //    Pen gridpen = new Pen(Color.Gray, GRID_WIDTH);
+        //    for (int i = 0; i < COLS; i++)
+        //       gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, bmp.Height);
+        //    for (int i = 0; i < ROWS; i++)
+        //       gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, bmp.Width, ALINGMENT + SCALE * i);
+        //    NumerateNodes();
+        //    DrawObstruct();
+        //    pb_grid.Image = bmp;
+        //}
 
         private void NumerateNodes()
         {
@@ -86,7 +91,7 @@ namespace Routing
             System.Drawing.SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
             System.Drawing.StringFormat drawFormat = new System.Drawing.StringFormat();
             for (int i = 0; i < COLS * ROWS; i++)
-                sourcegr.DrawString(i.ToString(), drawFont, drawBrush, (i % COLS) * SCALE, (i / COLS) * SCALE , drawFormat);
+                gr.DrawString(i.ToString(), drawFont, drawBrush, (i % COLS) * SCALE, (i / COLS) * SCALE , drawFormat);
         }
 
         public void DrawLines(List<Conductor> obs)
@@ -116,22 +121,21 @@ namespace Routing
                 int X = obs % COLS;
                 int Y = obs / COLS;
                 //линия влево
-                sourcegr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X - 1) * SCALE + ALINGMENT + GRID_WIDTH, Y * SCALE + ALINGMENT);
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X - 1) * SCALE + ALINGMENT + GRID_WIDTH, Y * SCALE + ALINGMENT);
                 //линия вправо
-                sourcegr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X + 1) * SCALE + ALINGMENT - GRID_WIDTH, Y * SCALE + ALINGMENT);
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, (X + 1) * SCALE + ALINGMENT - GRID_WIDTH, Y * SCALE + ALINGMENT);
                 //линия вниз
-                sourcegr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y + 1) * SCALE + ALINGMENT - GRID_WIDTH);
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y + 1) * SCALE + ALINGMENT - GRID_WIDTH);
                 //линия вверх
-                sourcegr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y - 1) * SCALE + ALINGMENT + GRID_WIDTH);
+                gr.DrawLine(new Pen(frameColor, GRID_WIDTH), X * SCALE + ALINGMENT, Y * SCALE + ALINGMENT, X * SCALE + ALINGMENT, (Y - 1) * SCALE + ALINGMENT + GRID_WIDTH);
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            DrawSourcePicture();
-            DrawGrid();
-        }
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+        //    DrawGrid();
+        //}
 
         private void frm_grid_MouseWheel(object sender, MouseEventArgs e)
         {
@@ -147,7 +151,7 @@ namespace Routing
                         SCALE -= 10;
                 }
                 gr.Clear(frameColor);
-                DrawGrid();
+                //DrawGrid();
         }
 
         private void frm_grid_MouseDown(object sender, MouseEventArgs e)
@@ -163,16 +167,27 @@ namespace Routing
         {
             if (e.Button==MouseButtons.Left)
             {
-                int diff_x = cursor_x - e.X;
-                int diff_y = cursor_y - e.Y;
-                if ((frameLocation_x+diff_x)<=sourcePicture.Width-pb_grid.Width && (frameLocation_x + diff_x)>=0)
+                int diff_x = e.X-cursor_x;
+                int diff_y = e.Y - cursor_y;
+                if ((frameLocation_x+diff_x)<=0 && (frameLocation_x + diff_x)>= pb_grid.Width- bmp.Width)
                     frameLocation_x += diff_x;
-                if ((frameLocation_y + diff_y) <= sourcePicture.Height-pb_grid.Height && (frameLocation_y + diff_y) >= 0)
+                if ((frameLocation_y + diff_y) <= 0 && (frameLocation_y + diff_y) >= pb_grid.Height - bmp.Height)
                     frameLocation_y += diff_y;
-               // Thread.Sleep(2);
-                 gr.Clear(frameColor);
-                 DrawGrid();
+                cursor_x = e.X;
+                cursor_y = e.Y;
+                pb_grid.Invalidate();
             }
+        }
+
+        private void pb_grid_Paint(object sender, PaintEventArgs e)
+        {
+            e.Graphics.DrawImageUnscaled(bmp, frameLocation_x, frameLocation_y);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            InitPicture();
         }
     }
 }
