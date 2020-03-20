@@ -61,8 +61,8 @@ namespace Routing
 
         public static  System.Windows.Forms.Form Test()
         {
-            frm_grid fg = new frm_grid(10, 10, 40);
-            fg.SetObstruct(12, 25);
+            frm_grid fg = new frm_grid(50, 50, new List<int> { 12, 13, 14,15,16,17,18,19,20 });
+           // fg.SetObstruct(12, 25);
             //int range = 10;
             //Graph g = new Graph(range, range);
             //Obstruct obs = new Obstruct(g);

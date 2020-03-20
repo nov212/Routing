@@ -13,16 +13,14 @@ namespace Routing
 {
     public partial class frm_grid : Form
     {
-        private Bitmap bmp;
+        private Bitmap grid;
         private Graphics gr;
         private PictureBox pb_grid;
         private int frameLocation_x = 0;
         private int frameLocation_y = 0;
         private int cursor_x=0;
         private int cursor_y=0;
-        private Bitmap sourcePicture;
-        private Graphics sourcegr;
-        private int SCALE;
+        private int SCALE=50;
         private int ROWS;
         private int COLS;
         private const int GRID_WIDTH = 1;
@@ -30,12 +28,18 @@ namespace Routing
         private static Random rand=new Random();
         private const int ALINGMENT = 15;
         private List<int> obstruct;
-        public frm_grid(int rows, int cols, int scale)
+        private List<List<Conductor>> traces;
+        private List<System.Drawing.Color> traces_color;
+        public frm_grid(int rows, int cols, List<int> obstruct)
         {
             this.ROWS=rows;
             this.COLS=cols;
-            this.SCALE = scale;
-            obstruct = new List<int>();
+            this.obstruct = obstruct;
+            //this.traces = traces;
+            //traces_color = new List<System.Drawing.Color>();
+            //for (int i = 0; i < traces.Count; i++)
+            //    traces_color.Add(System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256)));
+            InitPicture();
             InitPictureBox();
             InitFrame();
         }
@@ -43,46 +47,46 @@ namespace Routing
         private void InitFrame()
         {
             InitializeComponent();
-            this.ClientSize = new System.Drawing.Size(500,500);
-            this.MouseWheel += new MouseEventHandler(frm_grid_MouseWheel);
+            this.ClientSize = new System.Drawing.Size(790,650);
         }
 
         private void InitPictureBox()
         {
             pb_grid = new PictureBox();
-            pb_grid.Size = new System.Drawing.Size(500,500);
+            pb_grid.Size = new System.Drawing.Size(630,630);
             pb_grid.BorderStyle = BorderStyle.FixedSingle;
             pb_grid.BackColor = frameColor;
-            pb_grid.MouseDown += new MouseEventHandler(frm_grid_MouseDown);
-            pb_grid.MouseMove += new MouseEventHandler(frm_grid_MouseMove);
+            pb_grid.MouseDown += new MouseEventHandler(pb_grid_MouseDown);
+            pb_grid.MouseMove += new MouseEventHandler(pb_grid_MouseMove);
             pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
+            pb_grid.MouseWheel += new MouseEventHandler(pb_grid_MouseWheel);
+            pb_grid.Location = new Point(150, 10);
             this.Controls.Add(pb_grid);
+            pb_grid.Image = grid;
         }
 
         private void InitPicture()
         {
-            bmp = new Bitmap((COLS - 1) * SCALE + 2 * ALINGMENT, (ROWS - 1) * SCALE + 2 * ALINGMENT);
-            gr = Graphics.FromImage(bmp);
+            grid = new Bitmap((COLS - 1) * SCALE + 2 * ALINGMENT, (ROWS - 1) * SCALE + 2 * ALINGMENT);
+            gr = Graphics.FromImage(grid);
             Pen gridpen = new Pen(Color.Gray, GRID_WIDTH);
             for (int i = 0; i < COLS; i++)
-                gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, bmp.Height);
+                gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, grid.Height);
             for (int i = 0; i < ROWS; i++)
-                gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, bmp.Width, ALINGMENT + SCALE * i);
-            NumerateNodes();
+                gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, grid.Width, ALINGMENT + SCALE * i);
             DrawObstruct();
-            //pb_grid.Image = bmp;
+            NumerateNodes();
         }
 
         //private void DrawGrid()
         //{
         //    Pen gridpen = new Pen(Color.Gray, GRID_WIDTH);
         //    for (int i = 0; i < COLS; i++)
-        //       gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, bmp.Height);
+        //        gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, grid.Height);
         //    for (int i = 0; i < ROWS; i++)
-        //       gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, bmp.Width, ALINGMENT + SCALE * i);
+        //        gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, grid.Width, ALINGMENT + SCALE * i);
         //    NumerateNodes();
-        //    DrawObstruct();
-        //    pb_grid.Image = bmp;
+        //    pb_grid.Image = grid;
         //}
 
         private void NumerateNodes()
@@ -94,14 +98,13 @@ namespace Routing
                 gr.DrawString(i.ToString(), drawFont, drawBrush, (i % COLS) * SCALE, (i / COLS) * SCALE , drawFormat);
         }
 
-        public void DrawLines(List<Conductor> obs)
-        {
-                System.Drawing.Color color = System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
-                Pen NewPen = new Pen(color, 3);
-                foreach (Conductor cond in obs)
-                    gr.DrawLine(NewPen, (cond.FirstNode % COLS) * SCALE + ALINGMENT, (cond.FirstNode / COLS) * SCALE + ALINGMENT,
-                        (cond.SecondNode % COLS) * SCALE + ALINGMENT, (cond.SecondNode / COLS) * SCALE + ALINGMENT);
-        }
+        //public void DrawLines(List<List<Conductor>> obs)
+        //{
+        //    Pen NewPen = new Pen(color, 3);
+        //    foreach (Conductor cond in obs)
+        //        gr.DrawLine(NewPen, (cond.FirstNode % COLS) * SCALE + ALINGMENT, (cond.FirstNode / COLS) * SCALE + ALINGMENT,
+        //            (cond.SecondNode % COLS) * SCALE + ALINGMENT, (cond.SecondNode / COLS) * SCALE + ALINGMENT);
+        //}
 
         public void SetObstruct(int upLeft, int downRight)
         {
@@ -135,26 +138,30 @@ namespace Routing
         //{
         //    base.OnPaint(e);
         //    DrawGrid();
+        //    DrawObstruct();
         //}
 
-        private void frm_grid_MouseWheel(object sender, MouseEventArgs e)
+        private void pb_grid_MouseWheel(object sender, MouseEventArgs e)
         {
 
-                if (e.Delta > 0)
-                {
-                    if (SCALE < 70)
-                        SCALE += 10;
-                }
-                else
-                {
-                    if (SCALE>20)
-                        SCALE -= 10;
-                }
-                gr.Clear(frameColor);
+            if (e.Delta > 0)
+            {
+                if (SCALE < 70)
+                    SCALE += 10;
+            }
+            else
+            {
+                if (SCALE > 20)
+                    SCALE -= 10;
+            }
+            grid.Dispose();
+            gr.Dispose();
+            InitPicture();
+            pb_grid.Invalidate();
                 //DrawGrid();
         }
 
-        private void frm_grid_MouseDown(object sender, MouseEventArgs e)
+        private void pb_grid_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button==MouseButtons.Left)
             {
@@ -163,15 +170,15 @@ namespace Routing
             }
         }
 
-        private void frm_grid_MouseMove(object sender, MouseEventArgs e)
+        private void pb_grid_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button==MouseButtons.Left)
             {
                 int diff_x = e.X-cursor_x;
                 int diff_y = e.Y - cursor_y;
-                if ((frameLocation_x+diff_x)<=0 && (frameLocation_x + diff_x)>= pb_grid.Width- bmp.Width)
+                if ((frameLocation_x+diff_x)<=0 && (frameLocation_x + diff_x)>= pb_grid.Width- grid.Width)
                     frameLocation_x += diff_x;
-                if ((frameLocation_y + diff_y) <= 0 && (frameLocation_y + diff_y) >= pb_grid.Height - bmp.Height)
+                if ((frameLocation_y + diff_y) <= 0 && (frameLocation_y + diff_y) >= pb_grid.Height - grid.Height)
                     frameLocation_y += diff_y;
                 cursor_x = e.X;
                 cursor_y = e.Y;
@@ -181,13 +188,13 @@ namespace Routing
 
         private void pb_grid_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.DrawImageUnscaled(bmp, frameLocation_x, frameLocation_y);
+            e.Graphics.DrawImageUnscaled(grid, frameLocation_x, frameLocation_y);
         }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            InitPicture();
-        }
+        //protected override void OnLoad(EventArgs e)
+        //{
+        //    base.OnLoad(e);
+        //    InitPicture();
+        //}
     }
 }
