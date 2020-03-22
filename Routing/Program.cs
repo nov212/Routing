@@ -20,48 +20,61 @@ namespace Routing
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             List<int[]> circuits = new List<int[]>();
-            //List<int> exist = new List<int>();
-            //int range = 10000;
-            //Graph g = new Graph(range, range);
-            //Obstruct obs = new Obstruct(g);
-            //Solver s = new Solver(obs);
-            //int point = 0;
-            //int obsPoints =(int)(range * range *0.1);
-            //Random rnd = new Random();
-            //for (int i = 0; i < obsPoints; i++)
-            //{
-            //    point = rnd.Next(range * range);
-            //    while (obs[point] == true)
-            //        point = rnd.Next(range * range);
-            //    obs[point] = true;
-            //}
+            List<int> exist = new List<int>();
+            List<int> obstr = new List<int>();
+            int range = 100;
+            Graph g = new Graph(100, 100);
+            Obstruct obs = new Obstruct(g);
+            Solver s = new Solver(obs);
+            int point = 0;
+            int obsPoints = (int)(100 * 100 * 0.1);
+            Random rnd = new Random();
+            for (int i = 0; i < obsPoints; i++)
+            {
+                point = rnd.Next(range * range);
+                while (obs[point] == true)
+                    point = rnd.Next(range * range);
+                obs[point] = true;
+                obstr.Add(point);
+            }
 
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    int[] circuit = new int[5];
-            //    for (int j = 0; j < 5; j++)
-            //    {
-            //        point = rnd.Next(obs.GetN());
-            //        while (obs[point] == true || exist.Contains(point))
-            //            point = rnd.Next(range * range);
-            //        exist.Add(point);
-            //        circuit[j] = point;
-            //    }
-            //    circuits.Add(circuit);
-            //}
+            for (int i = 0; i < 10; i++)
+            {
+                int[] circuit = new int[5];
+                for (int j = 0; j < 5; j++)
+                {
+                    point = rnd.Next(obs.GetN());
+                    while (obs[point] == true || exist.Contains(point))
+                        point = rnd.Next(range * range);
+                    exist.Add(point);
+                    circuit[j] = point;
+                }
+                circuits.Add(circuit);
+            }
 
-           // Stopwatch sw = new Stopwatch();
-           // sw.Start();
-           //foreach (int[] circ in circuits)
-           //     s.PinConnect(obs,circ);
-           // sw.Stop();
+            // Stopwatch sw = new Stopwatch();
+            // sw.Start();
+            foreach (int[] circ in circuits)
+                s.PinConnect(obs, circ);
+            frm_grid fg = new frm_grid(100, 100, obstr, s.GetTrace());
+            // sw.Stop();
             //System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
-            Application.Run(Test());
+            Application.Run(fg);
         }
 
         public static  System.Windows.Forms.Form Test()
         {
-            frm_grid fg = new frm_grid(50, 50, new List<int> { 12, 13, 14,15,16,17,18,19,20 });
+            List <List<Conductor>> trace = new List<List<Conductor>>();
+            List<Conductor> line1 = new List<Conductor>();
+            line1.Add(new Conductor(40, 90));
+            line1.Add(new Conductor(90, 140));
+            line1.Add(new Conductor(140, 139));
+            List<Conductor> line2 = new List<Conductor>();
+            line2.Add(new Conductor(150,190));
+            trace.Add(line1);
+            trace.Add(line2);
+            frm_grid fg = new frm_grid(50, 50, new List<int> { 12, 12 },trace);
+            fg.FindPinLocation(1245);
            // fg.SetObstruct(12, 25);
             //int range = 10;
             //Graph g = new Graph(range, range);
