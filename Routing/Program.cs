@@ -56,7 +56,7 @@ namespace Routing
             // sw.Start();
             foreach (int[] circ in circuits)
                 s.PinConnect(obs, circ);
-            frm_grid fg = new frm_grid(100, 100, obstr, s.GetTrace());
+            frm_grid fg = new frm_grid();
             // sw.Stop();
             //System.Console.WriteLine("RUNTIME {0}", sw.ElapsedMilliseconds);
             Application.Run(fg);
@@ -73,8 +73,7 @@ namespace Routing
             line2.Add(new Conductor(150,190));
             trace.Add(line1);
             trace.Add(line2);
-            frm_grid fg = new frm_grid(50, 50, new List<int> { 12, 12 },trace);
-            fg.FindPinLocation(1245);
+            frm_grid fg = new frm_grid();
            // fg.SetObstruct(12, 25);
             //int range = 10;
             //Graph g = new Graph(range, range);

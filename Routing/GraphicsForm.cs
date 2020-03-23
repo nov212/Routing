@@ -28,26 +28,11 @@ namespace Routing
         private List<int> obstruct;
         private List<List<Conductor>> traces;
         private List<System.Drawing.Color> traces_color;
-        public frm_grid(int rows, int cols, List<int> obstruct, List<List<Conductor>> traces)
+        public frm_grid()
         {
-            this.ROWS=rows;
-            this.COLS=cols;
-            this.obstruct = obstruct;
-            cursorLocation = new Point(0, 0);
-            frameLocation = new Point(0, 0);
-            this.traces = traces;
-            traces_color = new List<System.Drawing.Color>();
-            for (int i = 0; i < traces.Count; i++)
-                traces_color.Add(System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256)));
             InitPictureBox();
-            InitPicture();
-            InitFrame();
-        }
-
-        private void InitFrame()
-        {
             InitializeComponent();
-            this.ClientSize = new System.Drawing.Size(790,650);
+            this.ClientSize = new System.Drawing.Size(790, 650);
         }
 
         private void InitPictureBox()
@@ -56,15 +41,29 @@ namespace Routing
             pb_grid.Size = new System.Drawing.Size(630,630);
             pb_grid.BorderStyle = BorderStyle.FixedSingle;
             pb_grid.BackColor = frameColor;
-            pb_grid.MouseDown += new MouseEventHandler(pb_grid_MouseDown);
-            pb_grid.MouseMove += new MouseEventHandler(pb_grid_MouseMove);
-            pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
-            pb_grid.MouseWheel += new MouseEventHandler(pb_grid_MouseWheel);
             pb_grid.Location = new Point(150, 10);
             this.Controls.Add(pb_grid);
         }
 
-        private void InitPicture()
+
+        private void InitPicture(int rows, int cols, List<int> obstruct, List<List<Conductor>> traces)
+        {
+            this.ROWS = rows;
+            this.COLS = cols;
+            this.obstruct = obstruct;
+            cursorLocation = new Point(0, 0);
+            frameLocation = new Point(0, 0);
+            this.traces = traces;
+            traces_color = new List<System.Drawing.Color>();
+            for (int i = 0; i < traces.Count; i++)
+                traces_color.Add(System.Drawing.Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256)));
+            pb_grid.MouseDown += new MouseEventHandler(pb_grid_MouseDown);
+            pb_grid.MouseMove += new MouseEventHandler(pb_grid_MouseMove);
+            pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
+            pb_grid.MouseWheel += new MouseEventHandler(pb_grid_MouseWheel);
+        }
+
+        private void Repaint()
         {
             grid = new Bitmap((COLS - 1) * SCALE + 2 * ALINGMENT, (ROWS - 1) * SCALE + 2 * ALINGMENT);
             gr = Graphics.FromImage(grid);
@@ -81,7 +80,6 @@ namespace Routing
                 gr.DrawLine(gridpen, ALINGMENT + SCALE * i, 0, ALINGMENT + SCALE * i, grid.Height);
             for (int i = 0; i < ROWS; i++)
                 gr.DrawLine(gridpen, 0, ALINGMENT + SCALE * i, grid.Width, ALINGMENT + SCALE * i);
-            NumerateNodes();
         }
 
         private void NumerateNodes()
@@ -153,7 +151,7 @@ namespace Routing
             {
                 grid.Dispose();
                 gr.Dispose();
-                InitPicture();
+               Repaint();
                 pb_grid.Invalidate();
             }
         }
@@ -169,45 +167,30 @@ namespace Routing
 
         private void pb_grid_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button==MouseButtons.Left)
-            {
-                int diff_x = e.X-cursorLocation.X;
-                int diff_y = e.Y - cursorLocation.Y;
-                if ((frameLocation.X+diff_x)<=0 && (frameLocation.X + diff_x)>= pb_grid.Width- grid.Width)
-                    frameLocation.X += diff_x;
-                if ((frameLocation.Y + diff_y) <= 0 && (frameLocation.Y + diff_y) >= pb_grid.Height - grid.Height)
-                    frameLocation.Y += diff_y;
-                cursorLocation.X = e.X;
-                cursorLocation.Y = e.Y;
-                pb_grid.Invalidate();
-            }
+                if (e.Button == MouseButtons.Left)
+                {
+                    int diff_x = e.X - cursorLocation.X;
+                    int diff_y = e.Y - cursorLocation.Y;
+                    if ((frameLocation.X + diff_x) <= 0 && (frameLocation.X + diff_x) >= pb_grid.Width - grid.Width)
+                        frameLocation.X += diff_x;
+                    if ((frameLocation.Y + diff_y) <= 0 && (frameLocation.Y + diff_y) >= pb_grid.Height - grid.Height)
+                        frameLocation.Y += diff_y;
+                    cursorLocation.X = e.X;
+                    cursorLocation.Y = e.Y;
+                    pb_grid.Invalidate();
+                }
         }
 
         private void pb_grid_Paint(object sender, PaintEventArgs e)
         {
-            if (grid.Width>pb_grid.Width)
-            if (frameLocation.X + grid.Width < pb_grid.Width)
-                frameLocation.X = pb_grid.Width - grid.Width;
+            if (grid.Width > pb_grid.Width)
+                if (frameLocation.X + grid.Width < pb_grid.Width)
+                    frameLocation.X = pb_grid.Width - grid.Width;
             if (grid.Height > pb_grid.Height)
                 if (frameLocation.Y + grid.Height < pb_grid.Height)
-                frameLocation.Y = pb_grid.Height - grid.Height;
-            e.Graphics.DrawImage(grid, frameLocation);
-        }
-
-        public void FindPinLocation(int pin)
-        {
-            int col = pin % COLS;
-            int row = pin / COLS;
-            SCALE = 50;
-            Invalidate();
-            frameLocation.X = -col * SCALE - ALINGMENT + pb_grid.Width / 2;
-            frameLocation.Y = -row * SCALE - ALINGMENT + pb_grid.Height / 2;
-            Invalidate();
-        }
-
-        private Point RowCol(int n)
-        {
-            return new Point(n / COLS, n % COLS);
+                    frameLocation.Y = pb_grid.Height - grid.Height;
+            if (grid!=null)
+                e.Graphics.DrawImage(grid, frameLocation);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -245,8 +228,16 @@ namespace Routing
                 circuits.Add(circuit);
             }
             foreach (int[] circ in circuits)
+            {
+                foreach (int n in circ)
+                    System.Console.Write("{0} ", n);
+                System.Console.WriteLine();
+            }
+            foreach (int[] circ in circuits)
                 s.PinConnect(obs, circ);
-            frm_grid fg = new frm_grid(100, 100, obstr, s.GetTrace());
+           InitPicture(100, 100, obstr, s.GetTrace());
+           Repaint();
+          pb_grid.Invalidate();
         }
     }
 }
