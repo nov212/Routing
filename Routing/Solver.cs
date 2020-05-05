@@ -11,14 +11,19 @@ namespace Routing
         public PerPut Graph_Config;
         private int[] inGroupTrace;
         private static int groupNum = 0;
+        //private int[] distance;
         private List<List<Conductor>> CondTrace;
 
         public Solver(IGraph g)
         {
             inGroupTrace = new int[g.GetN()];
+            //distance = new int[g.GetN()];
             CondTrace = new List<List<Conductor>>();
             for (int i = 0; i < inGroupTrace.Length; i++)
+            {
                 inGroupTrace[i] = 0;
+                //distance[i] = -1;
+            }
         }
         private void GetPer(IGraph obs, int node)
         {
@@ -26,6 +31,7 @@ namespace Routing
             Graph_Config = new PerPut(obs.GetN());
             Graph_Config.MoveLeft(node);
             Graph_Config.SetDistance(node, 0);
+            //distance[node] = 0;
             pinsQueue.Enqueue(node);
             while (pinsQueue.Count()!=0)
             {
@@ -35,6 +41,7 @@ namespace Routing
                     if (inGroupTrace[n]==0 && Graph_Config.MoveLeft(n))
                     {
                         Graph_Config.SetDistance(n, Graph_Config.GetDistance(node) + 1);
+                        //distance[n] = distance[node] + 1;
                         pinsQueue.Enqueue(n);
                     }
                 }
@@ -46,9 +53,9 @@ namespace Routing
         {
             //Список проводников для соединения группы пинов
             List<Conductor> PinToPinTrace = new List<Conductor>();
-           Subgraph subgraph = new Subgraph(g, pins);
-           int[] radius = new int[] { 5, 20, 50, 100 };
-           bool flag=false;
+            Subgraph subgraph = new Subgraph(g, pins);
+            int[] radius = new int[] { 5, 20, 50, 100 };
+            bool flag = false;
             int start = pins[0];
             foreach (int rad in radius)
                 if (ConnectOnSubgraph(subgraph, pins, rad) == true)
@@ -73,6 +80,7 @@ namespace Routing
             for (int k = 1; k < pins.Length; k++)
             {
                 if (Graph_Config.GetDistance(pins[k]) > 0)
+                //if (distance[pins[k]] > 0)
                 {
                     currentNode = pins[k];
                     pinsQueue.Enqueue(currentNode);
@@ -196,8 +204,9 @@ namespace Routing
         {
             foreach (int n in g.GetAdj(v))
             {
-                if ((Graph_Config.GetDistance(n) == Graph_Config.GetDistance(v) - 1) || inGroupTrace[n] == groupNum)
-                        yield return n;      
+                 if ((Graph_Config.GetDistance(n) == Graph_Config.GetDistance(v) - 1) || inGroupTrace[n] == groupNum)
+                //if (distance[n] == (distance[v] - 1) || inGroupTrace[n] == groupNum)
+                    yield return n;      
             }
         }
 

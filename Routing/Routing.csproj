@@ -44,25 +44,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GraphicsForm.cs">
+    <Compile Include="Graphics\Drawer.cs" />
+    <Compile Include="Graphics\GraphicsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GraphicsForm.Designer.cs">
+    <Compile Include="Graphics\GraphicsForm.Designer.cs">
       <DependentUpon>GraphicsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Graph.cs" />
+    <Compile Include="Graphics\GridDrawer.cs" />
+    <Compile Include="Graphics\IDraw.cs" />
     <Compile Include="IGraph.cs" />
     <Compile Include="Obstruct.cs" />
     <Compile Include="PerPut.cs" />
     <Compile Include="PriorityQueue.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Graphics\Scaler.cs" />
     <Compile Include="Solver.cs" />
     <Compile Include="Conductor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Subgraph.cs" />
-    <EmbeddedResource Include="GraphicsForm.resx">
+    <Compile Include="Graphics\Window.cs" />
+    <EmbeddedResource Include="Graphics\GraphicsForm.resx">
       <DependentUpon>GraphicsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -35,7 +35,7 @@ namespace Routing
             {
                 num[i] = i;
                 pos[i] = i;
-                distance[i] = -1;
+                //distance[i] = -1;
             }
 
         }
@@ -43,7 +43,7 @@ namespace Routing
         public int GetNum(int pos) { return num[pos]; }       //возвращает номер вершины в перестановке
         public int GetPos(int node) { return pos[node]; }   //позиция вершины в перестановке
         public int GetRgt() { return RGT; }                 //позиция рахделителя
-        public void SetDistance(int node, int _dist) { distance[node] = _dist; }      //устанавливает уровень вершины
+       public void SetDistance(int node, int _dist) { distance[node] = _dist; }      //устанавливает уровень вершины
         public int GetDistance(int node) { return distance[node]; }                   //уровень вершины node
 
         public bool MoveLeft(int node)
