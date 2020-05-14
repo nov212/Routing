@@ -6,24 +6,31 @@ using System.Threading.Tasks;
 
 namespace Routing
 {
-    class Subgraph: IGraph
+    public class Subgraph: IGraph
     {
         private IGraph sourceGraph;
         private readonly bool[] vertical;
         private readonly bool[] horizontal;
 
-        public Subgraph(IGraph graph, int[] pins)
+        public Subgraph(IGraph graph)
         {
             sourceGraph = graph;
             int Cols=graph.GetCol(graph.GetN()-1)+1;
             int Rows=graph.GetRow(graph.GetN()-1)+1;
             vertical= new bool[Cols];
             horizontal = new bool[Rows];
+        }
+
+        public void Add(int[] pins)
+        {
             foreach (int pin in pins)
-            {
-                vertical[graph.GetCol(pin)] = true;
-                horizontal[graph.GetRow(pin)] = true;
-            }
+                Add(pin);
+        }
+
+        public void Add(int pin)
+        {
+            vertical[sourceGraph.GetCol(pin)] = true;
+            horizontal[sourceGraph.GetRow(pin)] = true;
         }
 
         public bool AddVertical(int col)
@@ -41,21 +48,27 @@ namespace Routing
             return true;
         }
 
-        public bool Extend(int pin, int radius)
+        public void Extend(int pin, int radius)
         {
             if (pin < 0 || pin >= GetN())
-                return false;
-            int col = GetCol(pin);
-            int row = GetRow(pin);
-            for (int i = 0; i <= radius; i++)
-            {
-                AddVertical(col + i);
-                AddVertical(col - i);
-                AddHorizontal(row + i);
-                AddHorizontal(row - i);
-            }
-            return true;
+                return;
+                int col = GetCol(pin);
+                int row = GetRow(pin);
+                for (int i = 0; i <= radius; i++)
+                {
+                    AddVertical(col + i);
+                    AddVertical(col - i);
+                    AddHorizontal(row + i);
+                    AddHorizontal(row - i);
+                }
+            
         }
+        public void Extend(IEnumerable<int> pins, int radius)
+        {
+            foreach (int pin in pins)
+                Extend(pin, radius);
+        }
+
         public int GetN()
         {
             return sourceGraph.GetN();

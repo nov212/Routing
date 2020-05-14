@@ -28,10 +28,10 @@ namespace Routing
             drawer.DrawString(text, font, drawBrush, x, y);
         }
 
-        public void DrawLine(System.Drawing.Color color, int x1, int y1, int x2, int y2)
+        public void DrawLine(System.Drawing.Pen pen, int x1, int y1, int x2, int y2)
         {
             if (InRange(x1, y1, x2, y2))
-                drawer.DrawLine(color, x1, y1, x2, y2);
+                drawer.DrawLine(pen, x1, y1, x2, y2);
         }
 
         public System.Drawing.Size Size

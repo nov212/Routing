@@ -35,9 +35,11 @@ namespace Routing
             public int x2;
             public int y2;
             public Color color;
-            public Line(Color color, int x1, int y1, int x2, int y2)
+            public int width;
+            public Line(Color color, int width, int x1, int y1, int x2, int y2)
             {
                 this.color = color;
+                this.width = width;
                 this.x1 = x1;
                 this.y1 = y1;
                 this.x2 = x2;
@@ -50,7 +52,7 @@ namespace Routing
             InitPictureBox();
             InitializeComponent();
             this.ClientSize = new System.Drawing.Size(790, 650);
-            grid = new Bitmap(630, 630);
+            //grid = new Bitmap(630, 630);
         }
 
         private void InitPictureBox()
@@ -72,27 +74,28 @@ namespace Routing
             pb_grid.MouseDown += new MouseEventHandler(pb_grid_MouseDown);
             pb_grid.MouseMove += new MouseEventHandler(pb_grid_MouseMove);
             pb_grid.MouseWheel += new MouseEventHandler(pb_grid_MouseWheel);
-           // pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
-           // grid = new Bitmap((COLS - 1) * 10 + 2 * BORDER, (ROWS - 1) * 10 + 2 * BORDER);
+            // pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
+            int step = 50;
+           grid = new Bitmap((COLS - 1) * step , (ROWS - 1) * step );
             gr = Graphics.FromImage(grid);
             drawer = new Drawer(gr);
-            gridDrawer = new GridDrawer(grid.Width, grid.Height, drawer);
+            gridDrawer = new GridDrawer(pb_grid.Width,pb_grid.Height, drawer);
             Point coord = new Point(0, 0);
             Point coord1 = new Point(0, 0);
             for (int y = 0; y < ROWS; y++)
                 for (int x = 0; x < COLS - 1; x++)
-                    Lines.Add(new Line(Color.Gray, x, y, x + 1, y));
+                    Lines.Add(new Line(Color.Gray, GRID_WIDTH, x, y, x + 1, y));
             for (int x = 0; x < COLS; x++)
                 for (int y = 0; y < ROWS- 1; y++)
-                    Lines.Add(new Line(Color.Gray, x, y, x, y+1));
+                    Lines.Add(new Line(Color.Gray, GRID_WIDTH,  x, y,  x, y+1));
             foreach (int o in obstruct)
             {
                 coord.X = o % COLS;
                 coord.Y = o / COLS;
-                Lines.Add(new Line(frameColor, coord.X-1, coord.Y, coord.X, coord.Y));
-                Lines.Add(new Line(frameColor, coord.X, coord.Y, coord.X+1, coord.Y));
-                Lines.Add(new Line(frameColor, coord.X, coord.Y-1, coord.X, coord.Y));
-                Lines.Add(new Line(frameColor, coord.X, coord.Y, coord.X, coord.Y+1));
+                Lines.Add(new Line(frameColor, GRID_WIDTH,coord.X-1, coord.Y,  coord.X,  coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X,  coord.Y, coord.X+1,  coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X,  coord.Y-1, coord.X,  coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH,coord.X,  coord.Y,  coord.X,  coord.Y+1));
             }
 
             foreach (var trace in traces)
@@ -104,16 +107,21 @@ namespace Routing
                     coord.Y = cond.FirstNode / COLS;
                     coord1.X = cond.SecondNode % COLS;
                     coord1.Y = cond.SecondNode / COLS;
-                    Lines.Add(new Line(trace_color, coord.X, coord.Y, coord1.X, coord1.Y));
+                    Lines.Add(new Line(trace_color, 3,coord.X, coord.Y, coord1.X, coord1.Y));
                 }
             }
         }
 
         private void Repaint()
         {
+            Pen pen = new Pen(Color.Gray, 1);
             gridDrawer.Clear(frameColor);
             foreach (Line line in Lines)
-                gridDrawer.DrawLine(line.color, line.x1, line.y1, line.x2, line.y2);
+            {
+                pen.Color = line.color;
+                pen.Width = line.width;
+                gridDrawer.DrawLine(pen, line.x1, line.y1, line.x2, line.y2);
+            }
             if (gridDrawer.Scale > 20)
                 NumerateNodes();
             pb_grid.Image = grid;
@@ -131,9 +139,9 @@ namespace Routing
         private void pb_grid_MouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
-                gridDrawer.Scale += 10;
+                gridDrawer.Scale += 1;
             else
-                gridDrawer.Scale -= 10;
+                gridDrawer.Scale -= 1;
             Repaint();
         }
 
@@ -173,7 +181,7 @@ namespace Routing
             List<int[]> circuits = new List<int[]>();
             List<int> exist = new List<int>();
             List<int> obstr = new List<int>();
-            int range = 100;
+            int range = 10;
             Graph g = new Graph(range, range);
             Obstruct obs = new Obstruct(g);
             Solver s = new Solver(obs);
@@ -210,11 +218,10 @@ namespace Routing
             }
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            foreach (int[] circ in circuits)
-                s.PinConnect(obs, circ);
+            s.FindTrace(obs, circuits);
             sw.Stop();
             Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
-            InitPicture(range, range, obstr,s.GetTrace());
+            InitPicture(range, range, obstr, s.GetTrace());
             Repaint();
         }
     }

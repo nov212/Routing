@@ -8,205 +8,233 @@ namespace Routing
 {
     public class Solver
     {
-        public PerPut Graph_Config;
-        private int[] inGroupTrace;
-        private static int groupNum = 0;
-        //private int[] distance;
-        private List<List<Conductor>> CondTrace;
+        private int[] inGroupTrace;                 //массив меток для каждого контакта 0-не трассирован, 1-принадлежит цепи 1
+        private List<List<Conductor>> CondTrace;    //список трасс
+        private List<int> fail;                     //список контактов, которые не удалось соединить
 
         public Solver(IGraph g)
         {
             inGroupTrace = new int[g.GetN()];
-            //distance = new int[g.GetN()];
             CondTrace = new List<List<Conductor>>();
             for (int i = 0; i < inGroupTrace.Length; i++)
-            {
                 inGroupTrace[i] = 0;
-                //distance[i] = -1;
-            }
+            fail = new List<int>();
         }
-        private void GetPer(IGraph obs, int node)
+
+        private int[] GetWave(IGraph obs, int node)
         {
+            int[] wave = new int[obs.GetN()];
+            for (int i = 0; i< wave.Length; i++)
+                wave[i] = -1;
             Queue<int> pinsQueue=new Queue<int>();
-            Graph_Config = new PerPut(obs.GetN());
+            PerPut Graph_Config = new PerPut(obs.GetN());
             Graph_Config.MoveLeft(node);
-            Graph_Config.SetDistance(node, 0);
-            //distance[node] = 0;
+            wave[node] = 0;
+            int group = inGroupTrace[node];
             pinsQueue.Enqueue(node);
             while (pinsQueue.Count()!=0)
             {
                 node = pinsQueue.Dequeue();
                 foreach (int n in obs.GetAdj(node))
                 {
-                    if (inGroupTrace[n]==0 && Graph_Config.MoveLeft(n))
+                    if ((inGroupTrace[n]==0 || inGroupTrace[n]==group) && Graph_Config.MoveLeft(n))
                     {
-                        Graph_Config.SetDistance(n, Graph_Config.GetDistance(node) + 1);
-                        //distance[n] = distance[node] + 1;
+                        wave[n] = wave[node] + 1;
                         pinsQueue.Enqueue(n);
                     }
                 }
             }
+            return wave;
         }
 
-
-        public void PinConnect(IGraph g,int[] pins)
+        public void FindPathOnSubgraph(IGraph g, IEnumerable<int[]> circuits, int[] radius)
         {
-            //Список проводников для соединения группы пинов
-            List<Conductor> PinToPinTrace = new List<Conductor>();
-            Subgraph subgraph = new Subgraph(g, pins);
-            int[] radius = new int[] { 5, 20, 50, 100 };
-            bool flag = false;
-            int start = pins[0];
-            foreach (int rad in radius)
-                if (ConnectOnSubgraph(subgraph, pins, rad) == true)
-                {
-                    flag = true;
-                    break;
-                }
-            if (!flag)
-                GetPer(g, start);
-            groupNum++;
-                    /*
-                     * currentNode-обрабатываемый в текущий момент узел
-                     * prev[i]-предшественник узла i
-                     * cost[i]-стоимость пути до узла i
-                     * price-промежуточное значение, показывает стоимость пути до узла
-                    */
-            int currentNode;
-            int price;
+            int idx;
+            int rad;
+            int failcount;
             Queue<int> pinsQueue = new Queue<int>();
             int[] prev = new int[g.GetN()];
             int[] cost = new int[g.GetN()];
-            for (int k = 1; k < pins.Length; k++)
+            int group = 0;  //номер цепи 
+
+            //пометим контакты номером цепи
+            foreach (var circ in circuits)
             {
-                if (Graph_Config.GetDistance(pins[k]) > 0)
-                //if (distance[pins[k]] > 0)
+                group++;
+                foreach (var pin in circ)
+                    inGroupTrace[pin] = group;
+            }
+
+            foreach (var circ in circuits)
+            {
+                idx = 0;
+                int start = circ[0];
+                int currentGroup = inGroupTrace[start];
+                int currentNode = start;
+                Subgraph sub=new Subgraph(g);
+                int price;
+                sub.Add(circ);
+                List<Conductor> PinToPinTrace = new List<Conductor>();
+                do
                 {
-                    currentNode = pins[k];
-                    pinsQueue.Enqueue(currentNode);
-
-                    //инициализация массивов prev и cost
-                    for (int i = 0; i < prev.Length; i++)
+                    failcount = -1;
+                    int[] wave = GetWave(sub, start);
+                        rad = radius[idx++];
+                        sub.Extend(circ, rad);
+ 
+                    foreach (int n in circ)
                     {
-                        prev[i] = -1;
-                        cost[i] = -1;
-                    }
-
-                    cost[currentNode] = 0;
-                    while (pinsQueue.Count!=0)
-                    {
-                        currentNode = pinsQueue.Dequeue();
-                        if (inGroupTrace[currentNode] == groupNum || currentNode == start)
-                            break;
-                        foreach (int next in NextNode(currentNode, g))
+                        if (wave[n] > 0)  //существует путь до узла n
                         {
-                            if (prev[next] == -1)
+                            currentNode = n;
+                            for (int i = 0; i < prev.Length; i++)
+                            {
+                                prev[i] = -1;
+                                cost[i] = -1;
+                            }
+
+                            cost[currentNode] = 0;
+                            foreach (int next in sub.GetAdj(currentNode))
+                                if (wave[next] == (wave[currentNode] - 1))
+                                {
+                                    pinsQueue.Enqueue(next);
+                                    prev[next] = currentNode;
+                                    cost[next] = 1;
+                                }
+
+                            while (pinsQueue.Count != 0)
+                            {
+                                currentNode = pinsQueue.Dequeue();
+                                if (inGroupTrace[currentNode] == currentGroup)
+                                    break;
+                                foreach (int next in sub.GetAdj(currentNode))
+                                    if (wave[next] == (wave[currentNode] - 1))
+                                    {
+                                        if (prev[next] == -1)
+                                        {
+                                            pinsQueue.Enqueue(next);
+                                            prev[next] = currentNode;
+                                        }
+                                        if (Math.Abs(prev[currentNode] - currentNode) == Math.Abs(next - currentNode))
+                                            price = cost[currentNode] + 1;
+                                        else
+                                            price = cost[currentNode] + 2;
+                                        if (price < cost[next] || cost[next] == -1)
+                                        {
+                                            cost[next] = price;
+                                            prev[next] = currentNode;
+                                        }
+                                    }
+                            }
+                            while (prev[currentNode] != -1)
+                            {
+                                PinToPinTrace.Add(new Conductor(currentNode, prev[currentNode]));
+                                inGroupTrace[currentNode] = currentGroup;
+                                inGroupTrace[prev[currentNode]] = currentGroup;
+                                currentNode = prev[currentNode];
+                            }
+                            pinsQueue.Clear();
+                        }
+                        else failcount++;
+                    }
+                } while (failcount > 0 && idx < radius.Length);
+                if (PinToPinTrace.Count()>0)
+                    CondTrace.Add(PinToPinTrace);
+            }
+        }
+
+        public void FindTrace(IGraph g, IEnumerable<int[]> pins)
+        {
+            int group = 0;  //номер цепи 
+
+            //пометим контакты номером цепи
+            foreach (var trace in pins)
+            {
+                group++;
+                foreach (var pin in trace)
+                    inGroupTrace[pin] = group;
+            }
+
+            foreach (var trace in pins)
+            {
+                List<Conductor> PinToPinTrace = new List<Conductor>();
+                int start = trace[0];
+                int currentGroup = inGroupTrace[start];     //номер обрабатываемой цепи
+                int[] wave = new int[g.GetN()];
+                wave = GetWave(g, start);
+                /*
+                    * currentNode-обрабатываемый в текущий момент узел
+                    * prev[i]-предшественник узла i
+                    * cost[i]-стоимость пути до узла i
+                    * price-промежуточное значение, показывает стоимость пути до узла
+                   */
+                int currentNode;
+                int price;
+                Queue<int> pinsQueue = new Queue<int>();
+                int[] prev = new int[g.GetN()];
+                int[] cost = new int[g.GetN()];
+                for (int k = 1; k < trace.Length; k++)
+                {
+                    if (wave[trace[k]] > 0) //условие существования пути до узла trace[k]
+                    {
+                        currentNode = trace[k];
+                        //инициализация массивов prev и cost
+                        for (int i = 0; i < prev.Length; i++)
+                        {
+                            prev[i] = -1;
+                            cost[i] = -1;
+                        }
+
+                        cost[currentNode] = 0;
+                        foreach (int next in g.GetAdj(currentNode))
+                            if (wave[next] == (wave[currentNode] - 1))
                             {
                                 pinsQueue.Enqueue(next);
                                 prev[next] = currentNode;
+                                cost[next] = 1;
                             }
-                            if (Math.Abs(prev[currentNode] - currentNode) == Math.Abs(next - currentNode))
-                                price=cost[currentNode]+1;
-                            else
-                                price=cost[currentNode]+2;
-                            if (price<cost[next] || cost[next]==-1)
-                            {
-                                cost[next] = price;
-                                prev[next] = currentNode;
-                            }
-                        }
-                    }
 
-                    //построение трассы
-                    while (prev[currentNode] != -1)
-                    {
-                        PinToPinTrace.Add(new Conductor(currentNode, prev[currentNode]));
-                        inGroupTrace[currentNode] = groupNum;
-                        inGroupTrace[prev[currentNode]] = groupNum;
-                        currentNode = prev[currentNode];
-                    }
-                    CondTrace.Add(PinToPinTrace);
-                    pinsQueue.Clear();
-                }
-            }
-        }
-
-        private bool ConnectOnSubgraph(Subgraph sub,int[] pins, int radius)
-        {
-            foreach (int pin in pins)
-                sub.Extend(pin, radius);
-            GetPer(sub, pins[0]);
-            foreach (int pin in pins)
-                if (!Graph_Config.ContainLeft(pin))
-                    return false;
-            return true;
-        }
-
-        public void Heuristic(IGraph grid, int[] pins)
-        {
-            groupNum++;
-            int end = pins[0];
-            PriorityQueue queue = new PriorityQueue();
-            int[] prev = new int[grid.GetN()];
-            int currentNode;
-            int priority;
-            int start;
-           
-            for (int i = 1; i < pins.Length; i++)
-            {
-                start = pins[i];
-                currentNode = start;
-                for (int j = 0; j < grid.GetN(); j++) { prev[j] = -1; }
-                prev[start] = start;
-                queue.Enqueue(GetDistance(grid, start, end), currentNode);
-                while (queue.Count != 0)
-                {
-                    currentNode = queue.Deque();
-                    if (currentNode == end || inGroupTrace[currentNode]==groupNum)
-                        break;
-                    foreach (int next in grid.GetAdj(currentNode))
-                    {
-                        if (inGroupTrace[next] == groupNum)
-                            priority = 0;
-                        else
-                        priority = GetDistance(grid, end, next);
-                        if (prev[next] == -1)
+                        while (pinsQueue.Count != 0)
                         {
-                            prev[next] = currentNode;
-                            queue.Enqueue(priority, next);
+                            currentNode = pinsQueue.Dequeue();
+                            if (inGroupTrace[currentNode] == currentGroup)
+                                break;
+                            foreach (int next in g.GetAdj(currentNode))
+                            {
+                                if (wave[next] == (wave[currentNode] - 1))
+                                {
+                                    if (prev[next] == -1)
+                                    {
+                                        pinsQueue.Enqueue(next);
+                                        prev[next] = currentNode;
+                                    }
+                                    if (Math.Abs(prev[currentNode] - currentNode) == Math.Abs(next - currentNode))
+                                        price = cost[currentNode] + 1;
+                                    else
+                                        price = cost[currentNode] + 2;
+                                    if (price < cost[next] || cost[next] == -1)
+                                    {
+                                        cost[next] = price;
+                                        prev[next] = currentNode;
+                                    }
+                                }
+                            }
                         }
+
+                        //построение трассы
+                        while (prev[currentNode] != -1)
+                        {
+                            PinToPinTrace.Add(new Conductor(currentNode, prev[currentNode]));
+                            inGroupTrace[currentNode] = currentGroup;
+                            inGroupTrace[prev[currentNode]] = currentGroup;
+                            currentNode = prev[currentNode];
+                        }
+                        pinsQueue.Clear();
                     }
+                    else fail.Add(trace[k]);
                 }
-
-                //построение трассы
-                if (currentNode == end || inGroupTrace[currentNode] == groupNum)
-                {
-                    List<Conductor> trace = new List<Conductor>();
-                    while (currentNode != start)
-                    {
-                        inGroupTrace[currentNode] = groupNum;
-                        trace.Add(new Conductor(currentNode, prev[currentNode]));
-                        currentNode = prev[currentNode];
-                    }
-                    inGroupTrace[currentNode] = groupNum;
-                    CondTrace.Add(trace);
-                }
-                queue.Clear();
-            }
-        }
-
-        private int GetDistance(IGraph grid,int start, int end)
-        {
-            return Math.Abs(grid.GetRow(start) - grid.GetRow(end)) + Math.Abs(grid.GetCol(start) - grid.GetCol(end));
-        }
-
-        private IEnumerable<int> NextNode(int v, IGraph g)
-        {
-            foreach (int n in g.GetAdj(v))
-            {
-                 if ((Graph_Config.GetDistance(n) == Graph_Config.GetDistance(v) - 1) || inGroupTrace[n] == groupNum)
-                //if (distance[n] == (distance[v] - 1) || inGroupTrace[n] == groupNum)
-                    yield return n;      
+                if (PinToPinTrace.Count()>0)
+                        CondTrace.Add(PinToPinTrace);                     
             }
         }
 

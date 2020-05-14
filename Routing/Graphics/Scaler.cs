@@ -26,9 +26,9 @@ namespace Routing
 
         public Point Offset {get =>offset;}
 
-        public void DrawLine(Color color, int x1, int y1, int x2, int y2)
+        public void DrawLine(System.Drawing.Pen pen, int x1, int y1, int x2, int y2)
         {
-            drawer.DrawLine(color, (x1) * scale + offset.X, (y1) * scale + offset.Y, (x2) * scale + offset.X, (y2) * scale + offset.Y);
+            drawer.DrawLine(pen, (x1) * scale + offset.X, (y1) * scale + offset.Y, (x2) * scale + offset.X, (y2) * scale + offset.Y);
         }
 
        public void DrawString(string text, System.Drawing.Font font, System.Drawing.SolidBrush drawBrush, int x, int y)

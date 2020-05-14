@@ -11,7 +11,6 @@ namespace Routing
         private readonly int amount;     //количество вершин
         private readonly int[] num;      //номера вершин
         private readonly int[] pos;      //позиция вершины
-        private readonly int[] distance;    //уровень вершины i
         private int RGT;                //разделитель на правую и левую части массива num
 
         public bool ContainLeft(int num) { return (pos[num] < RGT); }
@@ -30,12 +29,10 @@ namespace Routing
             this.amount = amount;
             num = new int[amount];
             pos = new int[amount];
-            distance = new int[amount];
             for (int i = 0; i < this.amount; i++)
             {
                 num[i] = i;
                 pos[i] = i;
-                //distance[i] = -1;
             }
 
         }
@@ -43,8 +40,6 @@ namespace Routing
         public int GetNum(int pos) { return num[pos]; }       //возвращает номер вершины в перестановке
         public int GetPos(int node) { return pos[node]; }   //позиция вершины в перестановке
         public int GetRgt() { return RGT; }                 //позиция рахделителя
-       public void SetDistance(int node, int _dist) { distance[node] = _dist; }      //устанавливает уровень вершины
-        public int GetDistance(int node) { return distance[node]; }                   //уровень вершины node
 
         public bool MoveLeft(int node)
         {

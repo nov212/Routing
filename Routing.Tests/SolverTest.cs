@@ -10,144 +10,125 @@ namespace Routing.Tests
     public class SolverTest
     {
         [TestMethod]
-        public void PinConnect_HaveTraceBetweenAllPinsWithObstruct()
+        public void FindPathOnSubgraph_OneCircuitNoObstruct()
         {
-            Obstruct simpleGraph =new Obstruct(new Graph(5, 5));
+            Graph simpleGraph = new Graph(10, 10);
             Solver s = new Solver(simpleGraph);
-            int[] pins=new int[]{1,21,14};
-            simpleGraph.SetObstructZone(10,17);
-            s.PinConnect(simpleGraph, pins);
-            List<Conductor> expected = new List<Conductor>();
-            expected.Add(new Conductor(1,2));
-            expected.Add(new Conductor(2,3));
-            expected.Add(new Conductor(3,8));
-            expected.Add(new Conductor(8,13));
-            expected.Add(new Conductor(13,18));
-            expected.Add(new Conductor(18,23));
-            expected.Add(new Conductor(23,22));
-            expected.Add(new Conductor(22,21));
-            expected.Add(new Conductor(13,14));
-            List<Conductor> actual = s.GetTrace()[0];
-            Assert.IsTrue(AreEqualTraces(expected, actual));
-       }
-        [TestMethod]
-
-        public void PinConnect_SomePinsAreDisable()
-        {
-            Obstruct simpleGraph = new Obstruct(new Graph(5, 5));
-            Solver s = new Solver(simpleGraph);
-            int[] pins1 = new int[] { 3,20 };
-            int[] pins2 = new int[] { 4, 24, 11 };
-            List<Conductor> expected = new List<Conductor>();
-            expected.Add(new Conductor(3,8));
-            expected.Add(new Conductor(8,13));
-            expected.Add(new Conductor(13,18));
-            expected.Add(new Conductor(18,23));
-            expected.Add(new Conductor(23,22));
-            expected.Add(new Conductor(22,21));
-            expected.Add(new Conductor(21,20));
-            expected.Add(new Conductor(4, 9));
-            expected.Add(new Conductor(9,14));
-            expected.Add(new Conductor(14,19));
-            expected.Add(new Conductor(19,24));
-            s.PinConnect(simpleGraph, pins1);
-            s.PinConnect(simpleGraph, pins2);
-            List<Conductor> actual = new List<Conductor>();
-            foreach (List<Conductor> trace in s.GetTrace())
-                foreach (Conductor cond in trace)
-                    actual.Add(cond);
-            Assert.IsTrue(AreEqualTraces(actual, expected));
-        }
-
-        [TestMethod]
-
-        public void PinConnect_HaveTraceBetweenAllPinsWithoutObstruct()
-        {
-            Graph simpleGraph = new Graph(5, 5);
-            Solver s = new Solver(simpleGraph);
-            int[] pins1 = new int[] { 1,21,14 };
-            s.PinConnect(simpleGraph, pins1);
-            List<Conductor> expected = new List<Conductor>();
-            expected.Add(new Conductor(1,6));
-            expected.Add(new Conductor(6,11));
-            expected.Add(new Conductor(11,16));
-            expected.Add(new Conductor(16,21));
-            expected.Add(new Conductor(11,12));
-            expected.Add(new Conductor(12,13));
-            expected.Add(new Conductor(13,14));
-            List<Conductor> actual = s.GetTrace()[0];
-            Assert.IsTrue(AreEqualTraces(expected, actual));
-        }
-
-        [TestMethod]
-        public void PinConnect_RouteTwoCircuits()
-        {
-            Graph simpleGraph = new Graph(6, 6);
-            Solver s = new Solver(simpleGraph);
-            int[] pins1 = { 7,29 };
-            int[] pins2 = { 30, 14, 10 };
-            s.PinConnect(simpleGraph, pins1);
-            s.PinConnect(simpleGraph, pins2);
+            int[] pins = { 32, 27, 55, 68,84 };
             List<Conductor> expected = new List<Conductor>();
             List<Conductor> actual = new List<Conductor>();
-            expected.Add(new Conductor(29,28));
-            expected.Add(new Conductor(28,27));
-            expected.Add(new Conductor(27,26));
-            expected.Add(new Conductor(26,25));
-            expected.Add(new Conductor(25,19));
-            expected.Add(new Conductor(19,13));
-            expected.Add(new Conductor(13, 7));
-            expected.Add(new Conductor(14,8));
-            expected.Add(new Conductor(8,2));
-            expected.Add(new Conductor(2,1));
-            expected.Add(new Conductor(1,0));
-            expected.Add(new Conductor(0,6));
-            expected.Add(new Conductor(6,12));
-            expected.Add(new Conductor(12,18));
-            expected.Add(new Conductor(18,24));
-            expected.Add(new Conductor(24,30));
-            expected.Add(new Conductor(10,9));
-            expected.Add(new Conductor(9,8));
+            s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins }, new int[] { 2, 3, 4 });
+            expected.Add(new Conductor(32, 22));
+            expected.Add(new Conductor(22, 23));
+            expected.Add(new Conductor(23, 24));
+            expected.Add(new Conductor(24, 25));
+            expected.Add(new Conductor(25, 26));
+            expected.Add(new Conductor(26, 27));
+            expected.Add(new Conductor(32, 42));
+            expected.Add(new Conductor(42, 52));
+            expected.Add(new Conductor(52, 53));
+            expected.Add(new Conductor(53, 54));
+            expected.Add(new Conductor(54, 55));
+            expected.Add(new Conductor(55, 65));
+            expected.Add(new Conductor(65, 66));
+            expected.Add(new Conductor(66, 67));
+            expected.Add(new Conductor(67, 68));
+            expected.Add(new Conductor(54, 64));
+            expected.Add(new Conductor(64, 74));
+            expected.Add(new Conductor(74, 84));
             foreach (List<Conductor> trace in s.GetTrace())
                 foreach (Conductor cond in trace)
                     actual.Add(cond);
             Assert.IsTrue(AreEqualTraces(expected, actual));
-
         }
 
         [TestMethod]
-        public void HeuristicTestForGridWithoutObstruct()
+        public void FindPathOnSubgraph_TwoCircuitsNoObstruct()
         {
-            Graph simpleGraph = new Graph(5, 5);
+            Graph simpleGraph = new Graph(10, 10);
             Solver s = new Solver(simpleGraph);
-            s.Heuristic(simpleGraph, new int[] { 23,6 });
+            int[] pins1 = { 32, 27, 55, 68, 84 };
+            int[] pins2 = { 62, 87 };
             List<Conductor> expected = new List<Conductor>();
-            expected.Add(new Conductor(7, 6));
-            expected.Add(new Conductor(8, 7));
-            expected.Add(new Conductor(13, 8));
-            expected.Add(new Conductor(18, 13));
-            expected.Add(new Conductor(23, 18));
-            List<Conductor> actual = s.GetTrace()[0];
+            List<Conductor> actual = new List<Conductor>();
+            s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins1, pins2 }, new int[] { 2, 3, 4 });
+            expected.Add(new Conductor(32, 22));
+            expected.Add(new Conductor(22, 23));
+            expected.Add(new Conductor(23, 24));
+            expected.Add(new Conductor(24, 25));
+            expected.Add(new Conductor(25, 26));
+            expected.Add(new Conductor(26, 27));
+            expected.Add(new Conductor(32, 42));
+            expected.Add(new Conductor(42, 52));
+            expected.Add(new Conductor(52, 53));
+            expected.Add(new Conductor(53, 54));
+            expected.Add(new Conductor(54, 55));
+            expected.Add(new Conductor(55, 65));
+            expected.Add(new Conductor(65, 66));
+            expected.Add(new Conductor(66, 67));
+            expected.Add(new Conductor(67, 68));
+            expected.Add(new Conductor(54, 64));
+            expected.Add(new Conductor(64, 74));
+            expected.Add(new Conductor(74, 84));
+            expected.Add(new Conductor(62, 72));
+            expected.Add(new Conductor(72, 82));
+            expected.Add(new Conductor(82, 92));
+            expected.Add(new Conductor(92, 93));
+            expected.Add(new Conductor(93, 94));
+            expected.Add(new Conductor(94, 95));
+            expected.Add(new Conductor(95, 85));
+            expected.Add(new Conductor(85, 86));
+            expected.Add(new Conductor(86, 87));
+            foreach (List<Conductor> trace in s.GetTrace())
+                foreach (Conductor cond in trace)
+                    actual.Add(cond);
             Assert.IsTrue(AreEqualTraces(expected, actual));
         }
 
         [TestMethod]
-        public void HeuristicTestForGridWithObstruct()
+        public void FindTrace_RouteTwoCircuits()
         {
-            Obstruct simpleGraph = new Obstruct(new Graph(6, 6));
-            simpleGraph.SetObstructZone(12, 13);
-            simpleGraph.SetObstructZone(15, 16);
-            simpleGraph.SetObstructZone(16, 34);
+            Graph simpleGraph = new Graph(10, 10);
             Solver s = new Solver(simpleGraph);
-            s.Heuristic(simpleGraph, new int[] { 26, 11 });
+            int[] pins1 = { 32, 27, 55, 68, 84 };
+            int[] pins2 = { 62, 87 };
             List<Conductor> expected = new List<Conductor>();
-            expected.Add(new Conductor(11, 10));
-            expected.Add(new Conductor(10, 9));
-            expected.Add(new Conductor(9, 8));
-            expected.Add(new Conductor(8, 14));
-            expected.Add(new Conductor(14, 20));
-            expected.Add(new Conductor(20, 26));
+            List<Conductor> actual = new List<Conductor>();
+            s.FindTrace(simpleGraph, new List<int[]> { pins1, pins2 });
+            expected.Add(new Conductor(32, 22));
+            expected.Add(new Conductor(22, 23));
+            expected.Add(new Conductor(23, 24));
+            expected.Add(new Conductor(24, 25));
+            expected.Add(new Conductor(25, 26));
+            expected.Add(new Conductor(26, 27));
+            expected.Add(new Conductor(32, 42));
+            expected.Add(new Conductor(42, 52));
+            expected.Add(new Conductor(52, 53));
+            expected.Add(new Conductor(53, 54));
+            expected.Add(new Conductor(54, 55));
+            expected.Add(new Conductor(55, 65));
+            expected.Add(new Conductor(65, 66));
+            expected.Add(new Conductor(66, 67));
+            expected.Add(new Conductor(67, 68));
+            expected.Add(new Conductor(54, 64));
+            expected.Add(new Conductor(64, 74));
+            expected.Add(new Conductor(74, 84));
+            expected.Add(new Conductor(62, 72));
+            expected.Add(new Conductor(72, 82));
+            expected.Add(new Conductor(82, 92));
+            expected.Add(new Conductor(92, 93));
+            expected.Add(new Conductor(93, 94));
+            expected.Add(new Conductor(94, 95));
+            expected.Add(new Conductor(95, 85));
+            expected.Add(new Conductor(85, 86));
+            expected.Add(new Conductor(86, 87));
+            foreach (List<Conductor> trace in s.GetTrace())
+                foreach (Conductor cond in trace)
+                    actual.Add(cond);
+            Assert.IsTrue(AreEqualTraces(expected, actual));
+
         }
+
         public static bool AreEqualTraces(List<Conductor> expected, List<Conductor> actual)
         {
             if (expected.Count != actual.Count)
@@ -157,8 +138,6 @@ namespace Routing.Tests
                 if (!expected[i].Equals(actual[i]))
                     return false;
             return true;
-        }
-
-       
+        }       
     }
 }

@@ -30,9 +30,9 @@ namespace Routing
             set =>drawer.pen.Width = value; 
         }
 
-        public void  DrawLine(Color color, int x1, int y1, int x2, int y2)
+        public void  DrawLine(System.Drawing.Pen pen, int x1, int y1, int x2, int y2)
         {
-            scaler.DrawLine(color, x1, y1, x2, y2);
+            scaler.DrawLine(pen, x1, y1, x2, y2);
         }
 
         public void DrawString(string text, System.Drawing.Font font, System.Drawing.SolidBrush drawBrush, int x, int y)

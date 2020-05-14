@@ -16,9 +16,9 @@ namespace Routing
             gr = g;
             pen = new Pen(System.Drawing.Color.Gray, 1);
         }
-        public void DrawLine(System.Drawing.Color color, int x1, int y1, int x2, int y2)
+        public void DrawLine(System.Drawing.Pen pen, int x1, int y1, int x2, int y2)
         {
-            pen.Color = color;
+            //pen.Color = color;
             gr.DrawLine(pen, x1, y1, x2, y2);
         }
 
