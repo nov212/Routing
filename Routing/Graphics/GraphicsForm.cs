@@ -75,19 +75,32 @@ namespace Routing
             pb_grid.MouseMove += new MouseEventHandler(pb_grid_MouseMove);
             pb_grid.MouseWheel += new MouseEventHandler(pb_grid_MouseWheel);
             // pb_grid.Paint += new PaintEventHandler(pb_grid_Paint);
+
+            //шаг сетки
             int step = 50;
+
+            //битмап для сетки
            grid = new Bitmap((COLS - 1) * step , (ROWS - 1) * step );
             gr = Graphics.FromImage(grid);
+
+            //gridDrawer - инструмкнт для рисования сетки
             drawer = new Drawer(gr);
             gridDrawer = new GridDrawer(pb_grid.Width,pb_grid.Height, drawer);
+
             Point coord = new Point(0, 0);
             Point coord1 = new Point(0, 0);
+
+            //создание горизонтальных линий для сетки
             for (int y = 0; y < ROWS; y++)
                 for (int x = 0; x < COLS - 1; x++)
                     Lines.Add(new Line(Color.Gray, GRID_WIDTH, x, y, x + 1, y));
+
+            //создание вертикальных линий для сетки
             for (int x = 0; x < COLS; x++)
                 for (int y = 0; y < ROWS- 1; y++)
                     Lines.Add(new Line(Color.Gray, GRID_WIDTH,  x, y,  x, y+1));
+
+            //создание препятствий
             foreach (int o in obstruct)
             {
                 coord.X = o % COLS;
@@ -98,6 +111,7 @@ namespace Routing
                 Lines.Add(new Line(frameColor, GRID_WIDTH,coord.X,  coord.Y,  coord.X,  coord.Y+1));
             }
 
+            //создание цветных линий для прорисовки построенных трасс
             foreach (var trace in traces)
             {
                 Color trace_color = Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
@@ -174,55 +188,128 @@ namespace Routing
         //        e.Graphics.DrawImage(grid, gridDrawer.Offset);
         //}
 
+        private Obstruct GenerateTestField(int range, double percentage)
+        {
+            Graph g = new Graph(range, range);
+            Obstruct obs = new Obstruct(g);
+            Random rnd = new Random();
+            int amount = g.GetN();
+            int count = (int)(amount * percentage);
+            int obstacle = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                do
+                {
+                    obstacle = rnd.Next(amount);
+                } while (obs[obstacle] == true);
+                obs[obstacle] = true;
+            }
+            return obs;
+        }
+
+        private List<int> GenerateObstruct(Obstruct obs, double percentage)
+        {
+            List<int> obstructs = new List<int>();
+            Random rnd = new Random();
+            int amount = obs.GetN();
+            int obstacle = 0;
+            int count = (int)(amount * percentage);
+            for (int i = 0; i < count; i++)
+            {
+                do
+                {
+                    obstacle = rnd.Next(amount);
+                } while (obs[obstacle] == true);
+                obs[obstacle] = true;
+                obstructs.Add(obstacle);
+            }
+            return obstructs;
+        }
+
+        private List<int[]> GenerateTrace (Obstruct g, int circ_count, int pins)
+        {
+            PerPut pp = new PerPut(g.GetN());
+            Random rnd = new Random();
+            List<int[]> circuits = new List<int[]>();
+            int[] circ = null;
+            int pin = 0;
+            //цикл для генерации всех цепей
+            for (int j = 0; j < circ_count; j++)
+            {
+                circ = new int[pins];
+                //цикл для генерации контактов одной цепи
+                for (int i = 0; i < pins; i++)
+                {
+                    do
+                    {
+                        pin = rnd.Next(g.GetN());
+                    } while (g[pin] == true || pp.ContainLeft(pin));
+                    circ[i] = pin;
+                    pp.MoveLeft(pin);
+                }
+                circuits.Add(circ);
+            }
+            return circuits;
+        }
+
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-            List<int[]> circuits = new List<int[]>();
-            List<int> exist = new List<int>();
-            List<int> obstr = new List<int>();
+           
             int range = 10;
-            Graph g = new Graph(range, range);
+            Graph g = new Graph(5, 6);
             Obstruct obs = new Obstruct(g);
-            Solver s = new Solver(obs);
-            int point = 0;
-            int obsPoints = (int)(range * range * 0.1);
-            Random rnd = new Random();
-            for (int i = 0; i < obsPoints; i++)
-            {
-                point = rnd.Next(range * range);
-                while (obs[point] == true)
-                    point = rnd.Next(range * range);
-                obs[point] = true;
-                obstr.Add(point);
-            }
+            obs[20] = true;
+            obs[21] = true;
+            obs[15] = true;
+            obs[9] = true;
+            obs[3] = true;
+            obs[16] = true;
+            List<int> obstr = GenerateObstruct(obs, 0.1);
+            Solver s1 = new Solver(g);
+            //List<List<int>> sol = s1.FindPathOnSubgraph(g, new List<int[]> { new int[]{ 32, 27, 55, 68, 84 }, new int[] { 62, 87 } }, new int[] { 1, 2, 3 });
+            List<List<int>> sol = s1.FindTrace(obs, new List<int[]> { new int[] { 8, 17}});
+            foreach (var h in sol)
+                foreach (int q in h)
+                    Console.WriteLine($"{q} ");
+            ////Console.WriteLine("OBSTRUCTS");
+            ////foreach (int n in obstr)
+            ////    Console.Write($"{n} ");
+            ////Console.WriteLine();
+            //foreach (int n in obstr)
+            //    obs[n] = true;
+            //List<int[]> circuits = GenerateTrace(obs, 10, 5);
+            ////foreach (var trace in circuits)
+            ////{
+            ////    Console.WriteLine("GENERATED");
+            ////    foreach (int n in trace)
+            ////        Console.Write($"{n} ");
+            ////    Console.WriteLine();
+            ////}
+            //Solver s = new Solver(obs);
 
-            for (int i = 0; i < 10; i++)
-            {
-                int[] circuit = new int[5];
-                for (int j = 0; j < 5; j++)
-                {
-                    point = rnd.Next(obs.GetN());
-                    while (obs[point] == true || exist.Contains(point))
-                        point = rnd.Next(range * range);
-                    exist.Add(point);
-                    circuit[j] = point;
-                }
-                circuits.Add(circuit);
-            }
-            foreach (int[] circ in circuits)
-            {
-                foreach (int n in circ)
-                    System.Console.Write("{0} ", n);
-                System.Console.WriteLine();
-            }
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            s.FindTrace(obs, circuits);
-            sw.Stop();
-            Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
-            InitPicture(range, range, obstr, s.GetTrace());
-            Repaint();
+            //Stopwatch sw = new Stopwatch();
+
+            //sw.Start();
+            ////List<List<Conductor>> CondTrace = s.FindPathOnSubgraph(obs, circuits, new int[] { 1000 });
+            //sw.Stop();
+            //Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
+
+
+            ////sw.Restart();
+            ////s.FindTrace(obs, circuits);
+            ////sw.Stop();
+            ////Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
+            //foreach (var err in s.GetFailReport())
+            //{
+            //    if (err.Value != null)
+            //        Console.WriteLine($"{err.Key} {err.Value.Count()}");
+            //}
+
+            ////InitPicture(range, range, obstr, CondTrace);
+            ////Repaint();
         }
     }
 }
