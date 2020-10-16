@@ -257,43 +257,19 @@ namespace Routing
 
         private void button1_Click(object sender, EventArgs e)
         {
-           
-            int range = 10;
-            Graph g = new Graph(5, 6);
-            Obstruct obs = new Obstruct(g);
-            obs[20] = true;
-            obs[21] = true;
-            obs[15] = true;
-            obs[9] = true;
-            obs[3] = true;
-            obs[16] = true;
-            List<int> obstr = GenerateObstruct(obs, 0.1);
-            Solver s1 = new Solver(g);
-            //List<List<int>> sol = s1.FindPathOnSubgraph(g, new List<int[]> { new int[]{ 32, 27, 55, 68, 84 }, new int[] { 62, 87 } }, new int[] { 1, 2, 3 });
-            List<List<int>> sol = s1.FindTrace(obs, new List<int[]> { new int[] { 8, 17}});
-            foreach (var h in sol)
-                foreach (int q in h)
-                    Console.WriteLine($"{q} ");
-            ////Console.WriteLine("OBSTRUCTS");
-            ////foreach (int n in obstr)
-            ////    Console.Write($"{n} ");
-            ////Console.WriteLine();
-            //foreach (int n in obstr)
-            //    obs[n] = true;
-            //List<int[]> circuits = GenerateTrace(obs, 10, 5);
-            ////foreach (var trace in circuits)
-            ////{
-            ////    Console.WriteLine("GENERATED");
-            ////    foreach (int n in trace)
-            ////        Console.Write($"{n} ");
-            ////    Console.WriteLine();
-            ////}
-            //Solver s = new Solver(obs);
 
+            //int range = 5000;
+            //Graph g = new Graph(range, range);
+            //Obstruct obs = new Obstruct(g);
+            //List<int> obstr = GenerateObstruct(obs, 0.1);
+            //List<int[]> circuits = GenerateTrace(obs, 5, 5);
+            //Solver s1 = new Solver(g);
             //Stopwatch sw = new Stopwatch();
-
             //sw.Start();
-            ////List<List<Conductor>> CondTrace = s.FindPathOnSubgraph(obs, circuits, new int[] { 1000 });
+            ////s1.FindPathOnSubgraph(obs, circuits, new int[] { 5, 50, 70 });
+            //s1.FindTrace(obs, circuits);
+
+            //////List<List<Conductor>> CondTrace = s.FindPathOnSubgraph(obs, circuits, new int[] { 1000 });
             //sw.Stop();
             //Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
 
@@ -310,6 +286,15 @@ namespace Routing
 
             ////InitPicture(range, range, obstr, CondTrace);
             ////Repaint();
+            ///
+            Graph simpleGraph = new Graph(10, 10);
+            Solver s = new Solver(simpleGraph);
+            int[] pins = { 32, 27, 55, 68, 84 };
+            List<int> expected = new List<int>();
+            List<List<int>> actual = s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins }, new int[] { 2, 3, 4 });
+            foreach (var path in actual)
+                foreach (int pin in path)
+                    Console.WriteLine(pin+" ");
         }
     }
 }
