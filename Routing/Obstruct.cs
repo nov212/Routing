@@ -75,5 +75,17 @@ namespace Routing
 
         public int GetRow(int node) { return sourceGraph.GetRow(node); }
         public int GetCol(int node) { return sourceGraph.GetCol(node); }
+
+        public int ToNum(int row, int col)
+        {
+            return sourceGraph.ToNum(row, col);
+        }
+
+        public IEnumerable<int> GetAdj(bool direction, int node)
+        {
+            foreach (var n in sourceGraph.GetAdj(direction, node))
+                if (!obs[n])
+                    yield return n;
+        }
     }
 }

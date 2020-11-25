@@ -251,8 +251,7 @@ namespace Routing
         private List<int> Route(IGraph g, int[] wave, int src, int dest)
         {
             List<int> trace = new List<int>(); //соединение контактов src и dest
-            Queue<int> vertQueue = new Queue<int>();
-            Queue<int> horQueue = new Queue<int>();
+            Queue<int> pinsQueue = new Queue<int>();
             bool toggle = false;
             int currentNode = 0;
             int currentGroup = 0;
@@ -281,78 +280,38 @@ namespace Routing
                 }
 
                 cost[currentNode] = 0;
-                foreach (int next in g.GetAdj(currentNode))
-                    if (wave[next] == (wave[currentNode] - 1))
+                pinsQueue.Enqueue(currentNode);
+                toggle = false;
+                bool flag = false;
+                while (pinsQueue.Count()>0)
+                {
+                    currentNode = pinsQueue.Dequeue();
+                    //условие выхода, если текущая вершина принадлежит текущей группе цепи
+                    if (inGroupTrace[currentNode] == currentGroup && currentNode != dest)
+                        break;
+                    flag = false;
+                    foreach (int n in g.GetAdj(toggle, currentNode))
+                        if (wave[n] == wave[currentNode] - 1)
+                            flag = true;
+                    //проверка, есть ли узлы, в которые можно перейти в заданном напавлении
+                    if (flag)
                     {
-                        if (g.GetCol(next) == g.GetCol(currentNode))
-                            vertQueue.Enqueue(next);
-                        else
-                            horQueue.Enqueue(next);
-                        prev[next] = currentNode;
-                        cost[next] = 0;
-                    }
-                if (horQueue.Count() > 0)
-                {
-                    toggle = true;
-                    currentNode = horQueue.Peek();
-                }
-                else
-                {
-                    toggle = false;
-                    currentNode = vertQueue.Peek();
-                }
-
-                while (inGroupTrace[currentNode] != currentGroup)
-                {
-                    if (toggle == true)
-                    {
-                        while (horQueue.Count() != 0)
+                        foreach (int next in g.GetAdj(toggle, currentNode))
                         {
-                            currentNode = horQueue.Dequeue();
-                            if (inGroupTrace[currentNode] == currentGroup)
-                                break;
-                            if (GetNext(hor, wave, currentNode).Count()>0)
-                                foreach (int next in GetNext(hor, wave, currentNode))
+                            if (wave[next] == wave[currentNode] - 1)
+                                if (prev[next] == -1 || cost[next] > cost[currentNode])
                                 {
-                                    if (prev[next]==-1 || cost[next] > cost[currentNode])
-                                    {
-                                        prev[next] = currentNode;
-                                        cost[next] = cost[currentNode];
-                                        horQueue.Enqueue(next);
-                                    }
+                                    cost[next] = cost[currentNode];
+                                    prev[next] = currentNode;
+                                    pinsQueue.Enqueue(next);
                                 }
-                            else
-                            {
-                                cost[currentNode]++;
-                                vertQueue.Enqueue(currentNode);
-                            }
                         }
-                        toggle = false;
                     }
                     else
                     {
-                        while (vertQueue.Count() != 0)
-                        {
-                            currentNode = vertQueue.Dequeue();
-                            if (inGroupTrace[currentNode] == currentGroup)
-                                break;
-                            if (GetNext(vert, wave, currentNode).Count() > 0)
-                                foreach (int next in GetNext(vert, wave, currentNode))
-                                {
-                                    if (prev[next] == -1 || cost[next] > cost[currentNode])
-                                    {
-                                        prev[next] = currentNode;
-                                        cost[next] = cost[currentNode];
-                                        vertQueue.Enqueue(next);
-                                    }
-                                }
-                            else
-                            {
-                                cost[currentNode]++;
-                                horQueue.Enqueue(currentNode);
-                            }
-                        }
-                        toggle = true;
+                        toggle = !toggle;
+                        pinsQueue.Enqueue(currentNode);
+                        cost[currentNode]++;
                     }
                     
                 }
@@ -366,8 +325,7 @@ namespace Routing
                     currentNode = prev[currentNode];
                 }
                 trace.Add(currentNode);
-                vertQueue.Clear();
-                horQueue.Clear();
+                pinsQueue.Clear();
             }
             return trace;
         }

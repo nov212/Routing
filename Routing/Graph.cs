@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace Routing
 {
-    public class Graph:IGraph
+    public class Graph : IGraph
     {
         private readonly int ROWS;
         private readonly int COLS;
 
-        public  int ToNum(int row, int col)
+        public int ToNum(int row, int col)
         {
-            return row * COLS + col;
+            int res = row * COLS + col;
+            if (res >= 0 && res < GetN())
+                return res;
+            else return -1;
         }
-        public Graph(int _n , int _m)
+        public Graph(int _n, int _m)
         {
             ROWS = _n;
             COLS = _m;
@@ -48,7 +51,7 @@ namespace Routing
             }
         }
 
-        
+
         public int GetRow(int node)
         {
             if (node < GetN())
@@ -60,6 +63,17 @@ namespace Routing
             if (node < GetN())
                 return node % COLS;
             else throw new IndexOutOfRangeException();
+        }
+
+        public IEnumerable<int> GetAdj(bool direction, int node)
+        {
+            foreach (int n in GetAdj(node))
+            {
+                if (direction && GetRow(n) == GetRow(node))
+                    yield return n;
+                if (!direction && GetCol(n) == GetCol(node))
+                    yield return n;
+            }
         }
     }
 }

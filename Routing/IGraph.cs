@@ -12,5 +12,7 @@ namespace Routing
         IEnumerable<int> GetAdj(int node);      //соседи вершины
         int GetRow(int node);                   //возвращает строку, в которой находится узел node
         int GetCol(int node);                   //возвращает столбец, в которой находится узел node
+        int ToNum(int row, int col);
+        IEnumerable<int> GetAdj(bool direction, int node); //true- по горизонтали false по вертикали
     }
 }

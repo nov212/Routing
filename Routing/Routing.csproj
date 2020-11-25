@@ -55,6 +55,7 @@
     <Compile Include="Graphics\GridDrawer.cs" />
     <Compile Include="Graphics\IDraw.cs" />
     <Compile Include="IGraph.cs" />
+    <Compile Include="MultilayerGragh.cs" />
     <Compile Include="Obstruct.cs" />
     <Compile Include="PerPut.cs" />
     <Compile Include="PriorityQueue.cs" />

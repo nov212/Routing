@@ -125,6 +125,14 @@ namespace Routing
                     yield return adj;
         }
 
+        public IEnumerable<int> GetAdj(bool direction, int node)
+        {
+            foreach (int adj in sourceGraph.GetAdj(direction, node))
+                if ((this.GetCol(adj) == this.GetCol(node) && vertical[this.GetCol(adj)] == true)
+                    || (this.GetRow(adj) == this.GetRow(node) && horizontal[this.GetRow(adj)] == true))
+                    yield return adj;
+        }
+
         public int GetRow(int node)
         {
             return sourceGraph.GetRow(node);
@@ -133,6 +141,11 @@ namespace Routing
         public int GetCol(int node)
         {
             return sourceGraph.GetCol(node);
+        }
+
+        public int ToNum(int row, int col)
+        {
+            return sourceGraph.ToNum(row, col);
         }
     }
 }

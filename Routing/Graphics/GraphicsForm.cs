@@ -287,14 +287,24 @@ namespace Routing
             ////InitPicture(range, range, obstr, CondTrace);
             ////Repaint();
             ///
-            Graph simpleGraph = new Graph(10, 10);
-            Solver s = new Solver(simpleGraph);
-            int[] pins = { 32, 27, 55, 68, 84 };
-            List<int> expected = new List<int>();
-            List<List<int>> actual = s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins }, new int[] { 2, 3, 4 });
-            foreach (var path in actual)
-                foreach (int pin in path)
-                    Console.WriteLine(pin+" ");
+            //Graph simpleGraph = new Graph(10, 10);
+            //Solver s = new Solver(simpleGraph);
+            //int[] pins = { 32, 27, 55, 68, 84 };
+            //List<int> expected = new List<int>();
+            //List<List<int>> actual = s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins }, new int[] { 2, 3, 4 });
+            //foreach (var path in actual)
+            //    foreach (int pin in path)
+            //        Console.WriteLine(pin+" ");
+
+            Graph g1 = new Graph(4, 4);
+            Graph g2 = new Graph(4, 4);
+            Graph g3 = new Graph(4, 4);
+            MultilayerGragh mlg = new MultilayerGragh(new IGraph[] {g3, g1, g2 });
+            Console.WriteLine("GetN=" + mlg.GetN());
+            mlg.SetVia(2, 2, 0, 2);
+            foreach (int n in mlg.GetAdj(26))
+                Console.WriteLine(n);
+            
         }
     }
 }
