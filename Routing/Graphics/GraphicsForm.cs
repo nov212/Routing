@@ -296,15 +296,22 @@ namespace Routing
             //    foreach (int pin in path)
             //        Console.WriteLine(pin+" ");
 
-            Graph g1 = new Graph(4, 4);
-            Graph g2 = new Graph(4, 4);
-            Graph g3 = new Graph(4, 4);
-            MultilayerGragh mlg = new MultilayerGragh(new IGraph[] {g3, g1, g2 });
-            Console.WriteLine("GetN=" + mlg.GetN());
-            mlg.SetVia(2, 2, 0, 2);
-            foreach (int n in mlg.GetAdj(26))
+            //Graph g1 = new Graph(4, 4);
+            //Graph g2 = new Graph(4, 4);
+            //Graph g3 = new Graph(4, 4);
+            //MultilayerGragh mlg = new MultilayerGragh(new IGraph[] {g3, g1, g2 });
+            //Console.WriteLine("GetN=" + mlg.GetN());
+            //mlg.SetVia(2, 2, 0, 2);
+            //foreach (int n in mlg.GetAdj(26))
+            //    Console.WriteLine(n);
+
+            IGraph g1 = new Graph(5, 4);
+            Obstruct g2 = new Obstruct(new Graph(3, 3));
+            g2[11] = true;
+            IGraph comp = new HGraphComposite(new IGraph[] { g1, g2 });
+            foreach (int n in comp.GetAdj(10))
                 Console.WriteLine(n);
-            
+
         }
     }
 }

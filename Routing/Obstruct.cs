@@ -8,10 +8,10 @@ namespace Routing
 {
     public class Obstruct: IGraph
     {
-        private Graph sourceGraph;
+        private IGraph sourceGraph;
         private bool[] obs;
 
-        public Obstruct(Graph g)
+        public Obstruct(IGraph g)
         {
             this.sourceGraph = g;
             this.obs = new bool[g.GetN()];
@@ -38,23 +38,11 @@ namespace Routing
         }
 
 
-        public void SetObstructZone(int upLeft, int downRight)
+        public void SetObstructZone(int row1, int col1, int row2, int col2, int layer)
         {
-            int cols = sourceGraph.Cols;
-            int firstX = GetRow(upLeft);
-            int firstY= GetCol(upLeft);
-            int secondX = GetRow(downRight);
-            int secondY = GetCol(downRight);
-            try
-            {
-                for (int i = firstX; i <= secondX; i++)
-                    for (int j = firstY; j <= secondY; j++)
-                        obs[this.sourceGraph.ToNum(i,j)] = true;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                System.Console.WriteLine(e.Message);
-            }
+            for (int i = row1; i <= row2; i++)
+                for (int j = col1; j <= col2; j++)
+                    this[this.ToNum(i, j, layer)] = true;
         }
 
         public int Cols
@@ -76,9 +64,9 @@ namespace Routing
         public int GetRow(int node) { return sourceGraph.GetRow(node); }
         public int GetCol(int node) { return sourceGraph.GetCol(node); }
 
-        public int ToNum(int row, int col)
+        public int ToNum(int row, int col, int layer)
         {
-            return sourceGraph.ToNum(row, col);
+            return sourceGraph.ToNum(row, col, layer);
         }
 
         public IEnumerable<int> GetAdj(bool direction, int node)
@@ -86,6 +74,33 @@ namespace Routing
             foreach (var n in sourceGraph.GetAdj(direction, node))
                 if (!obs[n])
                     yield return n;
+        }
+
+        public int GetNodeLayer(int node)
+        {
+           return sourceGraph.GetNodeLayer(node);
+        }
+
+        public void Add(IGraph g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsMultilayer()
+        {
+            return false;
+        }
+
+        public bool IsComposite()
+        {
+            return sourceGraph.IsComposite();
+        }
+
+        public bool IsObstacle(int node)
+        {
+            if (node < 0 || node >= GetN())
+                throw new ArgumentOutOfRangeException();
+            return obs[node];
         }
     }
 }

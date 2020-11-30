@@ -12,13 +12,15 @@ namespace Routing
         private readonly bool[] vertical;
         private readonly bool[] horizontal;
 
+        public int Cols => sourceGraph.Cols;
+
+        public int Rows => sourceGraph.Rows;
+
         public Subgraph(IGraph graph)
         {
             sourceGraph = graph;
-            int Cols = graph.GetCol(graph.GetN() - 1) + 1;
-            int Rows = graph.GetRow(graph.GetN() - 1) + 1;
-            vertical = new bool[Cols];
-            horizontal = new bool[Rows];
+            vertical = new bool[this.Cols];
+            horizontal = new bool[this.Rows];
         }
 
         public void Add(int[] pins)
@@ -146,6 +148,33 @@ namespace Routing
         public int ToNum(int row, int col)
         {
             return sourceGraph.ToNum(row, col);
+        }
+
+        public int GetNodeLayer(int node)
+        {
+            return sourceGraph.GetNodeLayer(node);
+        }
+
+        public void Add(IGraph g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsMultilayer()
+        {
+            return false;
+        }
+
+        public bool IsComposite()
+        {
+            return false;
+        }
+
+        public bool IsObstacle(int node)
+        {
+            if (vertical[sourceGraph.GetCol(node)]||horizontal[sourceGraph.GetRow(node)])
+                return false;
+            return true;
         }
     }
 }

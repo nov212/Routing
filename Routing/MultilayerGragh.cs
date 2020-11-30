@@ -19,6 +19,10 @@ namespace Routing
         private const byte VS_DOWN = 2;
         private const byte VS_UPDOWN = 3;
 
+        public int Cols => layers[0].Cols;
+
+        public int Rows => layers[0].Rows;
+
         public MultilayerGragh(IEnumerable<IGraph> layers)
         {
             this.layers = layers.ToArray();
@@ -31,7 +35,7 @@ namespace Routing
         }
         public IEnumerable<int> GetAdj(int node)
         {
-            int actualLayer = ActualLayerNum(node);
+            int actualLayer = GetNodeLayer(node);
             int actualNode = ActualNumeration(node);
             //соседи на одном слое с node
             foreach (int n in layers[actualLayer].GetAdj(actualNode))
@@ -63,9 +67,9 @@ namespace Routing
             else return -1;
         }
 
-        public int ToNum(int row, int col)
+        public int ToNum(int row, int col, int layer)
         {
-            return layers[current].ToNum(row, col)+factor*current;
+            return layers[layer].ToNum(row, col, layer)+factor*current;
         }
 
         public void SetVia(int row, int col, int lower, int upper)
@@ -80,15 +84,15 @@ namespace Routing
                 return;
             int copyCurrent = current;
             MoveTo(lower);
-            if (via[ToNum(row, col)] == VS_NONE)
-                via[ToNum(row, col)] = VS_UP;
+            if (via[ToNum(row, col, lower)] == VS_NONE)
+                via[ToNum(row, col, lower)] = VS_UP;
             MoveTo(upper);
-            if (via[ToNum(row, col)] == VS_NONE)
-                via[ToNum(row, col)] = VS_DOWN;
+            if (via[ToNum(row, col, upper)] == VS_NONE)
+                via[ToNum(row, col, upper)] = VS_DOWN;
             for (int i=lower+1;i<upper;i++)
             {
                 MoveTo(i);
-                via[ToNum(row, col)] = VS_UPDOWN;
+                via[ToNum(row, col, i)] = VS_UPDOWN;
             }
             current = copyCurrent;
 
@@ -98,14 +102,6 @@ namespace Routing
         private int ActualNumeration(int n)
         {
             return n % factor;
-        }
-
-        private int ActualLayerNum(int n)
-        {
-            int res = n / factor;
-            if (res >= 0 && res < layersCount)
-                return res;
-            else return -1;
         }
 
         public IEnumerable<int> GetAdj(bool direction, int node)
@@ -135,6 +131,31 @@ namespace Routing
                 return layers[layer];
             }
             return null;
+        }
+
+        public int GetNodeLayer(int node)
+        {
+           return node/factor;
+        }
+
+        public void Add(IGraph g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsMultilayer()
+        {
+           return true;
+        }
+
+        public bool IsComposite()
+        {
+           return true;
+        }
+
+        public bool IsObstacle(int node)
+        {
+            return layers[GetNodeLayer(node)].IsObstacle(ActualNumeration(node));
         }
     }
 }
