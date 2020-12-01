@@ -308,7 +308,9 @@ namespace Routing
             IGraph g1 = new Graph(5, 4);
             Obstruct g2 = new Obstruct(new Graph(3, 3));
             g2[11] = true;
-            IGraph comp = new HGraphComposite(new IGraph[] { g1, g2 });
+            IGraph comp = new HGraphComposite();
+            comp.Add(g1);
+            comp.Add(g2);
             foreach (int n in comp.GetAdj(10))
                 Console.WriteLine(n);
 

@@ -16,11 +16,9 @@ namespace Routing.Tests
         IGraph composite;
         public HGraphCompositeTest()
         {
-            composite = new HGraphComposite(new IGraph[]
-            {
-                new Graph(5,4),
-                new Graph(3,3)
-            });
+            composite = new HGraphComposite();
+            composite.Add(new Graph(5, 4));
+            composite.Add(new Graph(3, 3));
         }
 
 
@@ -80,7 +78,7 @@ namespace Routing.Tests
         public void GetAdjButSomeNodesAreDisable()
         {
             Obstruct compositeObs = new Obstruct(composite);
-            compositeObs.SetObstructZone(3, 4, 4, 6);
+            compositeObs.SetObstructZone(3, 4, 4, 6, 0);
             int[] expected = { 23, 17, 31 };
             int[] actual = compositeObs.GetAdj(24).ToArray();
             CollectionAssert.AreEqual(expected, actual);
@@ -91,8 +89,10 @@ namespace Routing.Tests
         {
             IGraph g1 = new Graph(5, 4);
             Obstruct g2 = new Obstruct(new Graph(3,3));
-            g2.SetObstructZone(0, 0, 2, 0);
-            IGraph comp = new HGraphComposite(new IGraph[] { g1, g2 });
+            g2.SetObstructZone(0, 0, 2, 0,0 );
+            IGraph comp = new HGraphComposite();
+            comp.Add(g1);
+            comp.Add(g2);
             int[] expected = { 9,3, 17 };
             int[] actual = comp.GetAdj(10).ToArray();
             CollectionAssert.AreEqual(expected, actual, "неправильное число соседей: ожидалось {0}, получилось {1}",

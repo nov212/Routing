@@ -145,9 +145,9 @@ namespace Routing
             return sourceGraph.GetCol(node);
         }
 
-        public int ToNum(int row, int col)
+        public int ToNum(int row, int col, int layer)
         {
-            return sourceGraph.ToNum(row, col);
+            return sourceGraph.ToNum(row, col, layer);
         }
 
         public int GetNodeLayer(int node)
@@ -157,24 +157,34 @@ namespace Routing
 
         public void Add(IGraph g)
         {
-            throw new NotImplementedException();
+            sourceGraph.Add(g);
         }
 
         public bool IsMultilayer()
         {
-            return false;
+            return sourceGraph.IsMultilayer();
         }
 
         public bool IsComposite()
         {
-            return false;
+            return sourceGraph.IsComposite();
         }
 
-        public bool IsObstacle(int node)
+        public bool IsObstacle(int row, int col, int layer)
         {
-            if (vertical[sourceGraph.GetCol(node)]||horizontal[sourceGraph.GetRow(node)])
-                return false;
+            if (vertical[col] || horizontal[row])
+                return sourceGraph.IsObstacle(row, col, layer) ;
             return true;
+        }
+
+        public bool IsVia(int row, int col, int layer)
+        {
+            return sourceGraph.IsVia(row, col, layer);
+        }
+
+        public void SetVia(int row, int col, int layer)
+        {
+            sourceGraph.SetVia(row, col, layer);
         }
     }
 }

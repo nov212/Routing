@@ -10,10 +10,11 @@ namespace Routing
     {
         private readonly int ROWS;
         private readonly int COLS;
+        private bool[] via;
 
         public int ToNum(int row, int col, int layer)
         {
-            int res = row * COLS + col+layer*GetN();
+            int res = row * COLS + col;
             if (res >= 0 && res < GetN())
                 return res;
             else
@@ -23,6 +24,7 @@ namespace Routing
         {
             ROWS = _n;
             COLS = _m;
+            via = new bool[ROWS * COLS];
         }
         public int GetN()
         {
@@ -96,11 +98,19 @@ namespace Routing
             return false;
         }
 
-        public bool IsObstacle(int node)
+        public bool IsObstacle(int row, int col, int layer)
         {
-            if (node < 0 || node >= GetN())
-                throw new ArgumentOutOfRangeException();
             return false;
+        }
+
+        public bool IsVia(int row, int col, int layer)
+        {
+            return via[ToNum(row, col, layer)];
+        }
+
+        public void SetVia(int row, int col, int layer)
+        {
+            via[this.ToNum(row, col, layer)]=true;
         }
     }
 }

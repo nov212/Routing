@@ -20,6 +20,8 @@ namespace Routing
         void Add(IGraph g);                     
         bool IsMultilayer();
         bool IsComposite();
-        bool IsObstacle(int node);
+        bool IsObstacle(int row, int col, int layer);
+        bool IsVia(int row, int col, int layer);
+        void SetVia(int row, int col, int layer);
     }
 }

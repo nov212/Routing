@@ -83,12 +83,12 @@ namespace Routing
 
         public void Add(IGraph g)
         {
-            throw new NotImplementedException();
+            sourceGraph.Add(g);
         }
 
         public bool IsMultilayer()
         {
-            return false;
+            return sourceGraph.IsMultilayer();
         }
 
         public bool IsComposite()
@@ -96,11 +96,19 @@ namespace Routing
             return sourceGraph.IsComposite();
         }
 
-        public bool IsObstacle(int node)
+        public bool IsObstacle(int row, int col, int layer)
         {
-            if (node < 0 || node >= GetN())
-                throw new ArgumentOutOfRangeException();
-            return obs[node];
+            return obs[ToNum(row, col, layer)];
+        }
+
+        public bool IsVia(int row, int col, int layer)
+        {
+            return sourceGraph.IsVia(row, col, layer);
+        }
+
+        public void SetVia(int row, int col, int layer)
+        {
+            sourceGraph.SetVia(row, col, layer);
         }
     }
 }
