@@ -23,13 +23,13 @@ namespace Routing
             horizontal = new bool[this.Rows];
         }
 
-        public void Add(int[] pins)
+        public void AddPin(int[] pins)
         {
             foreach (int pin in pins)
-                Add(pin);
+                AddPin(pin);
         }
 
-        public void Add(int pin)
+        public void AddPin(int pin)
         {
             vertical[sourceGraph.GetCol(pin)] = true;
             horizontal[sourceGraph.GetRow(pin)] = true;
@@ -127,14 +127,6 @@ namespace Routing
                     yield return adj;
         }
 
-        public IEnumerable<int> GetAdj(bool direction, int node)
-        {
-            foreach (int adj in sourceGraph.GetAdj(direction, node))
-                if ((this.GetCol(adj) == this.GetCol(node) && vertical[this.GetCol(adj)] == true)
-                    || (this.GetRow(adj) == this.GetRow(node) && horizontal[this.GetRow(adj)] == true))
-                    yield return adj;
-        }
-
         public int GetRow(int node)
         {
             return sourceGraph.GetRow(node);
@@ -185,6 +177,11 @@ namespace Routing
         public void SetVia(int row, int col, int layer)
         {
             sourceGraph.SetVia(row, col, layer);
+        }
+
+        public void SetPrefferedDirection(bool direction, int layer)
+        {
+            sourceGraph.SetPrefferedDirection(direction, layer);
         }
     }
 }

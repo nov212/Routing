@@ -82,7 +82,7 @@ namespace Routing
                 start = circ[0];
                 currentGroup = inGroupTrace[start];
                 currentNode = start;
-                sub.Add(circ);
+                sub.AddPin(circ);
                 Circuit = new List<int>();
 
                 foreach (int dest in circ)
@@ -252,7 +252,7 @@ namespace Routing
         {
             List<int> trace = new List<int>(); //соединение контактов src и dest
             Queue<int> pinsQueue = new Queue<int>();
-            bool toggle = false;
+            int price;
             int currentNode = 0;
             int currentGroup = 0;
             int[] prev = new int[wave.Length];
@@ -264,10 +264,6 @@ namespace Routing
             }
             if (wave[dest] > -1)
             {
-                Subgraph vert = new Subgraph(g);
-                Subgraph hor = new Subgraph(g);
-                for (int i = 0; vert.AddVertical(i) == true; i++) ;
-                for (int i = 0; hor.AddHorizontal(i) == true; i++) ;
                 currentGroup = inGroupTrace[dest];
                 currentNode = dest;
 
@@ -281,39 +277,39 @@ namespace Routing
 
                 cost[currentNode] = 0;
                 pinsQueue.Enqueue(currentNode);
-                toggle = false;
-                bool flag = false;
+                foreach (int n in g.GetAdj(currentNode))
+                {
+                    prev[n] = currentNode;
+                    cost[n] = 1;
+                    pinsQueue.Enqueue(n);
+                }
                 while (pinsQueue.Count()>0)
                 {
                     currentNode = pinsQueue.Dequeue();
                     //условие выхода, если текущая вершина принадлежит текущей группе цепи
                     if (inGroupTrace[currentNode] == currentGroup && currentNode != dest)
                         break;
-                    flag = false;
-                    foreach (int n in g.GetAdj(toggle, currentNode))
-                        if (wave[n] == wave[currentNode] - 1)
-                            flag = true;
+
                     //проверка, есть ли узлы, в которые можно перейти в заданном напавлении
-                    if (flag)
+                    foreach (int next in g.GetAdj(currentNode))
                     {
-                        foreach (int next in g.GetAdj(toggle, currentNode))
+                        if (wave[next] == wave[currentNode] - 1)
                         {
-                            if (wave[next] == wave[currentNode] - 1)
-                                if (prev[next] == -1 || cost[next] > cost[currentNode])
-                                {
-                                    cost[next] = cost[currentNode];
-                                    prev[next] = currentNode;
-                                    pinsQueue.Enqueue(next);
-                                }
+                            if (g.GetNodeLayer(next) != g.GetNodeLayer(currentNode))
+                                price = 10;
+                            else
+                            if (g.GetCol(next) != g.GetCol(prev[currentNode]) && g.GetRow(next) != g.GetRow(prev[currentNode]))
+                                price = 5;
+                            else
+                                price = 1;
+                            if (prev[next] == -1 || cost[next] > cost[currentNode]+price)
+                            {
+                                cost[next] = cost[currentNode]+price;
+                                prev[next] = currentNode;
+                                pinsQueue.Enqueue(next);
+                            }
                         }
                     }
-                    else
-                    {
-                        toggle = !toggle;
-                        pinsQueue.Enqueue(currentNode);
-                        cost[currentNode]++;
-                    }
-                    
                 }
 
                 //построение трассы

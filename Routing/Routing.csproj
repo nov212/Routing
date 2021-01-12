@@ -67,6 +67,7 @@
     <Compile Include="Conductor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="StainerTree.cs" />
     <Compile Include="Subgraph.cs" />
     <Compile Include="Graphics\Window.cs" />
     <EmbeddedResource Include="Graphics\GraphicsForm.resx">

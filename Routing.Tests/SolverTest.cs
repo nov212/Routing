@@ -198,8 +198,8 @@ namespace Routing.Tests
         [TestMethod]
         public void FindTrace_OneCircuitWithObstruct()
         {
-            Graph g = new Graph(5, 6);
-            Obstruct obs = new Obstruct(g);
+            Obstruct obs = new Obstruct(new Graph(5, 6));
+            obs.SetPrefferedDirection(false,0);
             obs[20] = true;
             obs[21] = true;
             obs[15] = true;
@@ -261,6 +261,26 @@ namespace Routing.Tests
             };
             CollectionAssert.AreEqual(expectedError.Keys, solver.GetFailReport().Keys);
             CollectionAssert.AreEqual(expectedError.Values, solver.GetFailReport().Values);
+        }
+
+        [TestMethod]
+        public void MultilayerRouting()
+        {
+            Obstruct layer1 = new Obstruct(new Graph(6, 6));
+            Obstruct layer2 = new Obstruct(new Graph(6, 6));
+            MultilayerGragh mg = new MultilayerGragh();
+            layer1.SetObstructZone(1, 3, 3, 3,0);
+            layer2.SetObstructZone(2, 3, 3, 4, 0);
+            layer1.SetVia(4, 2, 0);
+            layer2.SetVia(4, 2, 0);
+            mg.Add(layer1);
+            mg.Add(layer2);
+            mg.SetPrefferedDirection(false, 0);
+            mg.SetPrefferedDirection(true, 1);
+            Solver s = new Solver(mg);
+            List<List<int>> actual=s.FindTrace(mg, new List<int[]> { new int[] { 7, 47 } });
+            List<int> expected = new List<int> { 7, 8, 14, 20, 26, 62, 63, 64, 65, 59, 53, 47 };
+            CollectionAssert.AreEqual(expected, actual[0]);
         }
     }
 }

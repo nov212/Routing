@@ -51,10 +51,13 @@ namespace Routing.Tests
         #endregion
 
             // TEST STAND
+            //V-VIA
+            //O-OBSTACLE
+            //
             // LAYER 0          LAYER 1         LAYER 2
             // 0  1  2  3       16 17 18 19     32 33 34 35
-            // 4  5  6  7       20 21 22 23     36 37 38 39
-            // 8  9  V  11      24 25 V  27     40 41 V  43
+            // 4  5  6  7       20 21 22 23     36 37 O  39
+            // 8  7  V  11      24 25 V  27     40 O  V  43
             // 12 13 14 15      28 29 30 31     44 45 46 47
 
         [TestMethod]
@@ -116,6 +119,12 @@ namespace Routing.Tests
             expected = 0;
             actual = mlg.GetRow(32);
             Assert.AreEqual(expected, actual, "ожидалось: {0}, получилось: {1}", expected, actual);
+        }
+
+        [TestMethod]
+        public void IsObstacleTest()
+        {
+            Assert.IsTrue(mlg.IsObstacle(1, 2, 2));
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Routing
     {
         private readonly int ROWS;
         private readonly int COLS;
+        private bool direction = true;
         private bool[] via;
 
         public int ToNum(int row, int col, int layer)
@@ -32,10 +33,20 @@ namespace Routing
         }
         public IEnumerable<int> GetAdj(int node)
         {
-            if ((GetCol(node) - 1) >= 0) yield return node - 1;
-            if ((GetCol(node) + 1) < COLS) yield return node + 1;
-            if ((GetRow(node) - 1) >= 0) yield return node - COLS;
-            if ((GetRow(node) + 1) < ROWS) yield return node + COLS;
+            if (direction)
+            {
+                if ((GetCol(node) - 1) >= 0) yield return node - 1;
+                if ((GetCol(node) + 1) < COLS) yield return node + 1;
+                if ((GetRow(node) - 1) >= 0) yield return node - COLS;
+                if ((GetRow(node) + 1) < ROWS) yield return node + COLS;
+            }
+            else
+            {
+                if ((GetRow(node) - 1) >= 0) yield return node - COLS;
+                if ((GetRow(node) + 1) < ROWS) yield return node + COLS;
+                if ((GetCol(node) - 1) >= 0) yield return node - 1;
+                if ((GetCol(node) + 1) < COLS) yield return node + 1;
+            }
         }
 
         public int Rows
@@ -66,17 +77,6 @@ namespace Routing
             if (node < GetN())
                 return node % COLS;
             else throw new ArgumentOutOfRangeException();
-        }
-
-        public IEnumerable<int> GetAdj(bool direction, int node)
-        {
-            foreach (int n in GetAdj(node))
-            {
-                if (direction && GetRow(n) == GetRow(node))
-                    yield return n;
-                if (!direction && GetCol(n) == GetCol(node))
-                    yield return n;
-            }
         }
 
         public int GetNodeLayer(int node)
@@ -111,6 +111,11 @@ namespace Routing
         public void SetVia(int row, int col, int layer)
         {
             via[this.ToNum(row, col, layer)]=true;
+        }
+
+        public void SetPrefferedDirection(bool direction, int layer)
+        {
+            this.direction=direction;
         }
     }
 }

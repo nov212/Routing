@@ -86,12 +86,6 @@ namespace Routing
             return n % factor;
         }
 
-        public IEnumerable<int> GetAdj(bool direction, int node)
-        {
-            throw new NotImplementedException();
-        }
-
-
         public int GetNodeLayer(int node)
         {
            return node/factor;
@@ -116,6 +110,11 @@ namespace Routing
         public bool IsObstacle(int row, int col, int layer)
         {
             return layers[layer].IsObstacle(row, col, 0);
+        }
+
+        public void SetPrefferedDirection(bool direction, int layer)
+        {
+            layers[layer].SetPrefferedDirection(direction,0);
         }
     }
 }

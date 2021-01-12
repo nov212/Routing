@@ -103,6 +103,12 @@ namespace Routing
             return true;
         }
 
+        public void SetPrefferedDirection(bool direction, int layer)
+        {
+            foreach (IGraph g in graphs)
+                g.SetPrefferedDirection(direction, layer);
+        }
+
         public void SetVia(int row, int col, int layer)
         {
             foreach (var g in graphs)

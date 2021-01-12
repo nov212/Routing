@@ -69,13 +69,6 @@ namespace Routing
             return sourceGraph.ToNum(row, col, layer);
         }
 
-        public IEnumerable<int> GetAdj(bool direction, int node)
-        {
-            foreach (var n in sourceGraph.GetAdj(direction, node))
-                if (!obs[n])
-                    yield return n;
-        }
-
         public int GetNodeLayer(int node)
         {
            return sourceGraph.GetNodeLayer(node);
@@ -109,6 +102,11 @@ namespace Routing
         public void SetVia(int row, int col, int layer)
         {
             sourceGraph.SetVia(row, col, layer);
+        }
+
+        public void SetPrefferedDirection(bool direction, int layer)
+        {
+            sourceGraph.SetPrefferedDirection(direction, layer);
         }
     }
 }
