@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="HGraphCompositeTest.cs" />
     <Compile Include="MultilayerGraphTest.cs" />
+    <Compile Include="PolygonTest.cs" />
     <Compile Include="SolverTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
