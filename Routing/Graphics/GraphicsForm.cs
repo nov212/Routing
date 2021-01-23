@@ -257,63 +257,38 @@ namespace Routing
 
         private void button1_Click(object sender, EventArgs e)
         {
+            int range = 5000;
+            int width = 20;
+            IGraph obs = new Obstruct(new Graph(range, range));
+            int start = 0;
+            int finish = range * range-1;
+            int[] circuit = { start, finish };
+            PolygonGraph polygonGraph = new PolygonGraph(obs);
+            IPolygon area = new UnionPolygon();
+            area.Add(new Rectangle(0, 0, range - 1, width));
+            area.Add(new Rectangle(range - width, 0, range - 1, range - 1));
+            polygonGraph.RouteOn(area);
 
-            //int range = 5000;
-            //Graph g = new Graph(range, range);
-            //Obstruct obs = new Obstruct(g);
-            //List<int> obstr = GenerateObstruct(obs, 0.1);
-            //List<int[]> circuits = GenerateTrace(obs, 5, 5);
-            //Solver s1 = new Solver(g);
-            //Stopwatch sw = new Stopwatch();
+            Solver s1 = new Solver(obs);
+            Solver s2 = new Solver(obs);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s1.FindTrace(polygonGraph, new List<int[]> { circuit });
+            sw.Stop();
+            Console.WriteLine("Время выполнения для декоратора " + sw.ElapsedMilliseconds);
             //sw.Start();
-            ////s1.FindPathOnSubgraph(obs, circuits, new int[] { 5, 50, 70 });
-            //s1.FindTrace(obs, circuits);
-
-            //////List<List<Conductor>> CondTrace = s.FindPathOnSubgraph(obs, circuits, new int[] { 1000 });
+            //s2.FindTrace(obs, new List<int[]> { circuit });
             //sw.Stop();
-            //Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
+            //Console.WriteLine("Время выполнения для обычного " + sw.ElapsedMilliseconds);
 
-
-            ////sw.Restart();
-            ////s.FindTrace(obs, circuits);
-            ////sw.Stop();
-            ////Console.WriteLine($"Time {sw.ElapsedMilliseconds}");
-            //foreach (var err in s.GetFailReport())
-            //{
-            //    if (err.Value != null)
-            //        Console.WriteLine($"{err.Key} {err.Value.Count()}");
-            //}
-
-            ////InitPicture(range, range, obstr, CondTrace);
-            ////Repaint();
-            ///
-            //Graph simpleGraph = new Graph(10, 10);
-            //Solver s = new Solver(simpleGraph);
-            //int[] pins = { 32, 27, 55, 68, 84 };
-            //List<int> expected = new List<int>();
-            //List<List<int>> actual = s.FindPathOnSubgraph(simpleGraph, new List<int[]> { pins }, new int[] { 2, 3, 4 });
-            //foreach (var path in actual)
-            //    foreach (int pin in path)
-            //        Console.WriteLine(pin+" ");
-
-            //Graph g1 = new Graph(4, 4);
-            //Graph g2 = new Graph(4, 4);
-            //Graph g3 = new Graph(4, 4);
-            //MultilayerGragh mlg = new MultilayerGragh(new IGraph[] {g3, g1, g2 });
-            //Console.WriteLine("GetN=" + mlg.GetN());
-            //mlg.SetVia(2, 2, 0, 2);
-            //foreach (int n in mlg.GetAdj(26))
-            //    Console.WriteLine(n);
-
-            IGraph g1 = new Graph(5, 4);
-            Obstruct g2 = new Obstruct(new Graph(3, 3));
-            g2[11] = true;
-            IGraph comp = new HGraphComposite();
-            comp.Add(g1);
-            comp.Add(g2);
-            foreach (int n in comp.GetAdj(10))
-                Console.WriteLine(n);
-
+            //IGraph g = new Graph(20, 20);
+            //PolygonGraph pg = new PolygonGraph(g);
+            //UnionPolygon up = new UnionPolygon();
+            //up.Add(new Rectangle(0, 0, 19, 0)).Add(new Rectangle(19, 0, 19, 19));
+            //Solver s3 = new Solver(g);
+            //foreach (var trace in s3.FindTrace(g, new List<int[]> { new int[] { 0, 399 } }))
+            //    foreach (int n in trace)
+            //        Console.WriteLine(n);
         }
     }
 }
