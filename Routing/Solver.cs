@@ -18,12 +18,16 @@ namespace Routing
                 inGroupTrace[i] = 0;
         }
 
-        private int[] GetWave(IGraph obs, int src, int dest)
+        private void ResetWave(int[] wave)
+        {
+            for (int i = 0; i < wave.Length; i++)
+                wave[i] = -1;
+        }
+
+        private int[] GetWave(IGraph obs, ref int[] wave, int src, int dest)
         {
             int currentNode = src;
-            int[] wave = new int[obs.GetN()];
-            for (int i = 0; i< wave.Length; i++)
-                wave[i] = -1;
+            ResetWave(wave);
             Queue<int> pinsQueue=new Queue<int>();
             PerPut Graph_Config = new PerPut(obs.GetN());
             Graph_Config.MoveLeft(src);
@@ -95,7 +99,7 @@ namespace Routing
                         sub.AddHorisontalsAroundRow(sub.GetRow(start), rad, rad);
                         sub.AddVerticalsAroundCol(sub.GetCol(dest), rad, rad);
                         sub.AddHorisontalsAroundRow(sub.GetRow(dest), rad, rad);
-                        wave = GetWave(sub, start, dest);
+                        wave = GetWave(sub, ref wave, start, dest);
                         if (wave[dest] > -1)
                         {
                             PinToPinTrace = Route(sub, wave, start, dest);
@@ -107,7 +111,7 @@ namespace Routing
                     //то применяем алгоритм на всей
                     if (wave[dest]==-1)
                     {
-                        wave = GetWave(g, start, dest);
+                        wave = GetWave(g, ref wave, start, dest);
                         if (wave[dest] == -1)
                             FailReport(inGroupTrace[dest], dest);
                         else
@@ -130,7 +134,7 @@ namespace Routing
             List<int> PinToPinTrace = null; //соединение двух контактов
             List<int> Circuit = null;  //соединение для всей цепи
             int start = 0;
-            int[] wave = null;
+            int[] wave=new int[g.GetN()];
             //пометим контакты номером цепи
             InitCircuitGroups(circuits);
 
@@ -144,7 +148,7 @@ namespace Routing
                 {
                     if (dest == start)
                         continue;
-                    wave = GetWave(g, start, dest);
+                    GetWave(g, ref wave, start, dest);
                     if (wave[dest] > -1)
                     {
                         PinToPinTrace = Route(g, wave, start, dest);
@@ -295,13 +299,7 @@ namespace Routing
                     {
                         if (wave[next] == wave[currentNode] - 1)
                         {
-                            if (g.GetNodeLayer(next) != g.GetNodeLayer(currentNode))
-                                price = 10;
-                            else
-                            if (g.GetCol(next) != g.GetCol(prev[currentNode]) && g.GetRow(next) != g.GetRow(prev[currentNode]))
-                                price = 5;
-                            else
-                                price = 1;
+                            price = GetPrice(g, prev, currentNode, next);
                             if (prev[next] == -1 || cost[next] > cost[currentNode]+price)
                             {
                                 cost[next] = cost[currentNode]+price;
@@ -343,11 +341,29 @@ namespace Routing
             return fail;
         }
 
-        private IEnumerable<int> GetNext(IGraph g, int[] wave, int node)
+        //private IEnumerable<int> GetNext(IGraph g, int[] wave, int node)
+        //{
+        //    foreach (int n in g.GetAdj(node))
+        //        if (wave[n] == wave[node] - 1)
+        //            yield return n;
+        //}
+
+        private int GetPrice(IGraph g, int[] prev, int currentNode, int nextNode)
         {
-            foreach (int n in g.GetAdj(node))
-                if (wave[n] == wave[node] - 1)
-                    yield return n;
+            int price;
+            if (g.GetNodeLayer(nextNode) != g.GetNodeLayer(currentNode))
+                price = 10;
+            else
+            if (g.GetCol(nextNode) != g.GetCol(prev[currentNode]) && g.GetRow(nextNode) != g.GetRow(prev[currentNode]))
+                price = 5;
+            else
+                price = 1;
+            return price;
+        }
+
+        private void ResetPrevCost(ref int[] prev, ref int[] cost)
+        {
+
         }
     }
 }
