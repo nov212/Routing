@@ -22,7 +22,7 @@ namespace Routing
         private int COLS;
         private const int GRID_WIDTH = 1;
         private Color frameColor = System.Drawing.Color.White;
-        private static Random rand=new Random();
+        private static Random rand = new Random();
         private const int BORDER = 15;
         private GridDrawer gridDrawer;
         private Drawer drawer;
@@ -58,7 +58,7 @@ namespace Routing
         private void InitPictureBox()
         {
             pb_grid = new PictureBox();
-            pb_grid.Size =new Size(630,630);
+            pb_grid.Size = new Size(630, 630);
             pb_grid.BorderStyle = BorderStyle.FixedSingle;
             pb_grid.BackColor = frameColor;
             pb_grid.Location = new Point(150, 10);
@@ -80,12 +80,12 @@ namespace Routing
             int step = 50;
 
             //битмап для сетки
-           grid = new Bitmap((COLS - 1) * step , (ROWS - 1) * step );
+            grid = new Bitmap((COLS - 1) * step, (ROWS - 1) * step);
             gr = Graphics.FromImage(grid);
 
             //gridDrawer - инструмкнт для рисования сетки
             drawer = new Drawer(gr);
-            gridDrawer = new GridDrawer(pb_grid.Width,pb_grid.Height, drawer);
+            gridDrawer = new GridDrawer(pb_grid.Width, pb_grid.Height, drawer);
 
             Point coord = new Point(0, 0);
             Point coord1 = new Point(0, 0);
@@ -97,18 +97,18 @@ namespace Routing
 
             //создание вертикальных линий для сетки
             for (int x = 0; x < COLS; x++)
-                for (int y = 0; y < ROWS- 1; y++)
-                    Lines.Add(new Line(Color.Gray, GRID_WIDTH,  x, y,  x, y+1));
+                for (int y = 0; y < ROWS - 1; y++)
+                    Lines.Add(new Line(Color.Gray, GRID_WIDTH, x, y, x, y + 1));
 
             //создание препятствий
             foreach (int o in obstruct)
             {
                 coord.X = o % COLS;
                 coord.Y = o / COLS;
-                Lines.Add(new Line(frameColor, GRID_WIDTH,coord.X-1, coord.Y,  coord.X,  coord.Y));
-                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X,  coord.Y, coord.X+1,  coord.Y));
-                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X,  coord.Y-1, coord.X,  coord.Y));
-                Lines.Add(new Line(frameColor, GRID_WIDTH,coord.X,  coord.Y,  coord.X,  coord.Y+1));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X - 1, coord.Y, coord.X, coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X, coord.Y, coord.X + 1, coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X, coord.Y - 1, coord.X, coord.Y));
+                Lines.Add(new Line(frameColor, GRID_WIDTH, coord.X, coord.Y, coord.X, coord.Y + 1));
             }
 
             //создание цветных линий для прорисовки построенных трасс
@@ -121,7 +121,7 @@ namespace Routing
                     coord.Y = cond.FirstNode / COLS;
                     coord1.X = cond.SecondNode % COLS;
                     coord1.Y = cond.SecondNode / COLS;
-                    Lines.Add(new Line(trace_color, 3,coord.X, coord.Y, coord1.X, coord1.Y));
+                    Lines.Add(new Line(trace_color, 3, coord.X, coord.Y, coord1.X, coord1.Y));
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace Routing
         {
             System.Drawing.Font drawFont = new System.Drawing.Font("Arial", 7);
             System.Drawing.SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
-            for (int i = 0; i < ROWS*COLS; i++)
+            for (int i = 0; i < ROWS * COLS; i++)
                 gridDrawer.DrawString(i.ToString(), drawFont, drawBrush, i % COLS, i / COLS);
         }
 
@@ -161,7 +161,7 @@ namespace Routing
 
         private void pb_grid_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button==MouseButtons.Left)
+            if (e.Button == MouseButtons.Left)
             {
                 cursorLocation.X = e.X;
                 cursorLocation.Y = e.Y;
@@ -170,16 +170,16 @@ namespace Routing
 
         private void pb_grid_MouseMove(object sender, MouseEventArgs e)
         {
-                if (e.Button == MouseButtons.Left)
-                {
+            if (e.Button == MouseButtons.Left)
+            {
                 int diff_x = e.X - cursorLocation.X;
                 int diff_y = e.Y - cursorLocation.Y;
                 gridDrawer.Move(gridDrawer.Offset.X + diff_x, gridDrawer.Offset.Y + diff_y);
-                    cursorLocation.X = e.X;
-                    cursorLocation.Y = e.Y;
+                cursorLocation.X = e.X;
+                cursorLocation.Y = e.Y;
                 Repaint();
                 //pb_grid.Invalidate();
-                }
+            }
         }
 
         //private void pb_grid_Paint(object sender, PaintEventArgs e)
@@ -227,7 +227,7 @@ namespace Routing
             return obstructs;
         }
 
-        private List<int[]> GenerateTrace (Obstruct g, int circ_count, int pins)
+        private List<int[]> GenerateTrace(Obstruct g, int circ_count, int pins)
         {
             PerPut pp = new PerPut(g.GetN());
             Random rnd = new Random();
@@ -432,6 +432,11 @@ namespace Routing
                 polygonGraph.ToNum(9200, 9400,0)
             };
 
+            int[] circ21 =
+           {
+                polygonGraph.ToNum(6250, 250,0),
+                polygonGraph.ToNum(7750, 250,0),
+            };
             List<int[]> circuits = new List<int[]>
             {
                 circ1,
@@ -462,5 +467,55 @@ namespace Routing
             sw.Stop();
             Console.WriteLine("Время: " + sw.ElapsedMilliseconds);
         }
+
+        static IGraph GenerateGragh(int range, int obstructs, bool[] config)
+        {
+            Obstruct obs = new Obstruct(new Graph(range, range));
+            Random r = new Random();
+            int index = 0;
+            int iter = obstructs;
+            while (iter > 0)
+            {
+                index = r.Next(0, range * range);
+                if (config[index] == false)
+                {
+                    config[index] = true;
+                    obs[index] = true;
+                    iter--;
+                }
+            }
+            return obs;
+        }
+
+        static List<int[]> GenerateCircuitsOnRect(bool[] config, IGraph g, int circCount, int pinCount, int startRow, int startCol, int endRow, int endCol)
+        {
+            Random r = new Random();
+            int cc = circCount;
+            int pc = pinCount;
+            int index;
+            int row = 0;
+            int col = 0;
+            List<int[]> circuits = new List<int[]>();
+            for (int i = 0; i < circCount; i++)
+            {
+                int[] circuit = new int[pinCount];
+                pc = pinCount;
+                while (pc > 0)
+                {
+                    row = r.Next(startRow, endRow + 1);
+                    col = r.Next(startCol, endCol + 1);
+                    index = g.ToNum(row, col, 0);
+                    if (config[index] == false)
+                    {
+                        config[index] = true;
+                        circuit[pc - 1] = index;
+                        pc--;
+                    }
+                }
+                circuits.Add(circuit);
+            }
+            return circuits;
+        }
+       
     }
 }

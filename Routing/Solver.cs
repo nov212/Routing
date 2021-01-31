@@ -137,7 +137,7 @@ namespace Routing
             int[] wave=new int[g.GetN()];
             //пометим контакты номером цепи
             InitCircuitGroups(circuits);
-
+            int ccount = 0;
             foreach (var trace in circuits)
             {
                 Circuit = new List<int>();
@@ -154,6 +154,8 @@ namespace Routing
                         PinToPinTrace = Route(g, wave, start, dest);
                         foreach (var cond in PinToPinTrace)
                             Circuit.Add(cond);
+                        ccount++;
+                        Console.WriteLine("ccount " + ccount);
                     }
                     else
                         FailReport(inGroupTrace[dest], dest);
