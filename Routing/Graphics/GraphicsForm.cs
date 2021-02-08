@@ -188,284 +188,17 @@ namespace Routing
         //        e.Graphics.DrawImage(grid, gridDrawer.Offset);
         //}
 
-        private Obstruct GenerateTestField(int range, double percentage)
-        {
-            Graph g = new Graph(range, range);
-            Obstruct obs = new Obstruct(g);
-            Random rnd = new Random();
-            int amount = g.GetN();
-            int count = (int)(amount * percentage);
-            int obstacle = 0;
-
-            for (int i = 0; i < count; i++)
-            {
-                do
-                {
-                    obstacle = rnd.Next(amount);
-                } while (obs[obstacle] == true);
-                obs[obstacle] = true;
-            }
-            return obs;
-        }
-
-        private List<int> GenerateObstruct(Obstruct obs, double percentage)
-        {
-            List<int> obstructs = new List<int>();
-            Random rnd = new Random();
-            int amount = obs.GetN();
-            int obstacle = 0;
-            int count = (int)(amount * percentage);
-            for (int i = 0; i < count; i++)
-            {
-                do
-                {
-                    obstacle = rnd.Next(amount);
-                } while (obs[obstacle] == true);
-                obs[obstacle] = true;
-                obstructs.Add(obstacle);
-            }
-            return obstructs;
-        }
-
-        private List<int[]> GenerateTrace(Obstruct g, int circ_count, int pins)
-        {
-            PerPut pp = new PerPut(g.GetN());
-            Random rnd = new Random();
-            List<int[]> circuits = new List<int[]>();
-            int[] circ = null;
-            int pin = 0;
-            //цикл для генерации всех цепей
-            for (int j = 0; j < circ_count; j++)
-            {
-                circ = new int[pins];
-                //цикл для генерации контактов одной цепи
-                for (int i = 0; i < pins; i++)
-                {
-                    do
-                    {
-                        pin = rnd.Next(g.GetN());
-                    } while (g[pin] == true || pp.ContainLeft(pin));
-                    circ[i] = pin;
-                    pp.MoveLeft(pin);
-                }
-                circuits.Add(circ);
-            }
-            return circuits;
-        }
 
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int range = 10000;
-            IGraph obs = new Obstruct(new Graph(range, range));
-            IPolygon rect1 = new Rectangle(6000, 0, 10000, 4000);
-            IPolygon rect2 = new Rectangle(2000, 0, 4000, 3000);
-            IPolygon rect3 = new Rectangle(0, 4000, 5000, 7000);
-            IPolygon rect4 = new Rectangle(7000, 5000, 10000, 10000);
-            IPolygon union = new UnionPolygon();
-            union.Add(rect1).Add(rect2).Add(rect3).Add(rect4);
-            PolygonGraph polygonGraph = new PolygonGraph(obs);
-            polygonGraph.RouteOn(union);
-            int[] circ1 =
-            {
-                polygonGraph.ToNum(6250, 250,0),
-                polygonGraph.ToNum(7750, 250,0),
-                polygonGraph.ToNum(6750, 1250,0),
-                polygonGraph.ToNum(9000, 500,0),
-                polygonGraph.ToNum(9750, 250,0)
-            };
-            int[] circ2 =
-            {
-                polygonGraph.ToNum(6250, 2000,0),
-                polygonGraph.ToNum(7250, 1750,0),
-                polygonGraph.ToNum(8250, 1750,0),
-                polygonGraph.ToNum(7500, 1000,0),
-                polygonGraph.ToNum(8250, 1250,0)
-            };
-            int[] circ3 =
-            {
-                polygonGraph.ToNum(6500, 3500,0),
-                polygonGraph.ToNum(6500, 2000,0),
-                polygonGraph.ToNum(7500, 3500,0),
-                polygonGraph.ToNum(7250, 2750,0),
-                polygonGraph.ToNum(7750, 2750,0)
-            };
-            int[] circ4 =
-            {
-                polygonGraph.ToNum(7250, 500,0),
-                polygonGraph.ToNum(8750, 1500,0),
-                polygonGraph.ToNum(8750, 2750,0),
-                polygonGraph.ToNum(8000, 2250,0),
-                polygonGraph.ToNum(7000, 2250,0)
-            };
-            int[] circ5 =
-            {
-                polygonGraph.ToNum(9750, 1000,0),
-                polygonGraph.ToNum(9750, 3750,0),
-                polygonGraph.ToNum(9250, 2500,0),
-                polygonGraph.ToNum(8000, 3750,0),
-                polygonGraph.ToNum(8750, 3250,0)
-            };
-            int[] circ6 =
-            {
-                polygonGraph.ToNum(2400, 400,0),
-                polygonGraph.ToNum(3800, 400,0),
-                polygonGraph.ToNum(3800, 2800,0),
-                polygonGraph.ToNum(3400, 2800,0),
-                polygonGraph.ToNum(3600, 2000,0)
-            };
-            int[] circ7 =
-            {
-                polygonGraph.ToNum(2200, 0,0),
-                polygonGraph.ToNum(2200, 800,0),
-                polygonGraph.ToNum(3000, 800,0),
-                polygonGraph.ToNum(2600, 1600,0),
-                polygonGraph.ToNum(2400, 1200,0)
-            };
-            int[] circ8 =
-            {
-                polygonGraph.ToNum(2200, 2800,0),
-                polygonGraph.ToNum(2800, 3000,0),
-                polygonGraph.ToNum(3400, 3000,0),
-                polygonGraph.ToNum(4000, 2400,0),
-                polygonGraph.ToNum(2600, 2400,0)
-            };
-            int[] circ9 =
-          {
-                polygonGraph.ToNum(2600, 600,0),
-                polygonGraph.ToNum(2600, 1800,0),
-                polygonGraph.ToNum(2800, 1800,0),
-                polygonGraph.ToNum(2200, 1600,0),
-                polygonGraph.ToNum(3200, 1200,0)
-            };
-            int[] circ10 =
-          {
-                polygonGraph.ToNum(2200, 2600,0),
-                polygonGraph.ToNum(2400, 2000,0),
-                polygonGraph.ToNum(3400, 2400,0),
-                polygonGraph.ToNum(2600, 2200,0),
-                polygonGraph.ToNum(3000, 2800,0)
-            };
-            int[] circ11 =
-        {
-                polygonGraph.ToNum(400, 4600,0),
-                polygonGraph.ToNum(2400, 4600,0),
-                polygonGraph.ToNum(1200, 5400,0),
-                polygonGraph.ToNum(2400, 5400,0),
-                polygonGraph.ToNum(3200, 5000,0)
-            };
-            int[] circ12 =
-        {
-                polygonGraph.ToNum(600, 5600,0),
-                polygonGraph.ToNum(1400, 4200,0),
-                polygonGraph.ToNum(1800, 5600,0),
-                polygonGraph.ToNum(1800, 4800,0),
-                polygonGraph.ToNum(800, 6400,0)
-            };
-            int[] circ13 =
-        {
-                polygonGraph.ToNum(4600, 4800,0),
-                polygonGraph.ToNum(3200, 4600,0),
-                polygonGraph.ToNum(1600, 6000,0),
-                polygonGraph.ToNum(2400, 6200,0),
-                polygonGraph.ToNum(4600, 6200,0)
-            };
-            int[] circ14 =
-        {
-                polygonGraph.ToNum(4200, 4400,0),
-                polygonGraph.ToNum(4200, 6400,0),
-                polygonGraph.ToNum(4800, 5600,0),
-                polygonGraph.ToNum(4000, 5800,0),
-                polygonGraph.ToNum(2800, 5800,0)
-            };
-
-            int[] circ15 =
-    {
-                polygonGraph.ToNum(400, 6200,0),
-                polygonGraph.ToNum(1600, 6800,0),
-                polygonGraph.ToNum(4400, 6800,0),
-                polygonGraph.ToNum(2800, 6400,0),
-                polygonGraph.ToNum(3600, 6000,0)
-            };
-
-            int[] circ16 =
-    {
-                polygonGraph.ToNum(7600, 6000,0),
-                polygonGraph.ToNum(9000, 6000,0),
-                polygonGraph.ToNum(7600, 7600,0),
-                polygonGraph.ToNum(8200, 8000,0),
-                polygonGraph.ToNum(8600, 7000,0)
-            };
-            int[] circ17 =
-    {
-                polygonGraph.ToNum(7200, 5200,0),
-                polygonGraph.ToNum(7200, 6200,0),
-                polygonGraph.ToNum(8800, 5200,0),
-                polygonGraph.ToNum(8400, 6400,0),
-                polygonGraph.ToNum(8000, 5800,0)
-            };
-
-            int[] circ18 =
-    {
-                polygonGraph.ToNum(9600, 5800,0),
-                polygonGraph.ToNum(7800, 6600,0),
-                polygonGraph.ToNum(9200, 7000,0),
-                polygonGraph.ToNum(8000, 7600,0),
-                polygonGraph.ToNum(8800, 8400,0)
-            };
-
-            int[] circ19 =
-    {
-                polygonGraph.ToNum(7200, 9800,0),
-                polygonGraph.ToNum(9800, 9800,0),
-                polygonGraph.ToNum(9800, 8200,0),
-                polygonGraph.ToNum(8200, 9200,0),
-                polygonGraph.ToNum(9400, 9000,0)
-            };
-            int[] circ20 =
-{
-                polygonGraph.ToNum(7200, 7000,0),
-                polygonGraph.ToNum(7200, 9200,0),
-                polygonGraph.ToNum(8200, 8600,0),
-                polygonGraph.ToNum(9800, 6400,0),
-                polygonGraph.ToNum(9200, 9400,0)
-            };
-
-            int[] circ21 =
-           {
-                polygonGraph.ToNum(6250, 250,0),
-                polygonGraph.ToNum(7750, 250,0),
-            };
-            List<int[]> circuits = new List<int[]>
-            {
-                circ1,
-                circ2,
-                circ3,
-                circ4,
-                circ5,
-                circ6,
-                circ7,
-                circ8,
-                circ9,
-                circ10,
-                circ11,
-                circ12,
-                circ13,
-                circ14,
-                circ15,
-                circ16,
-                circ17,
-                circ18,
-                circ19,
-                circ20,
-            };
-            Solver s = new Solver(polygonGraph);
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            s.FindTrace(polygonGraph, circuits);
-            sw.Stop();
-            Console.WriteLine("Время: " + sw.ElapsedMilliseconds);
+            //int range = 10000;
+            //bool[] config = new bool[range * range];
+            //GenerateCircuitsOnRect(config, new Graph(range, range), 1, 3, 9000, 7500, 9500, 8000);
+            //GenerateCircuitsOnRect(config, new Graph(range, range), 1, 4, 7000, 7500, 7500, 8000);
+            //GenerateCircuitsOnRect(config, new Graph(range, range), 1, 3, 4000, 6000, 4500, 6500);
+            Test5();
         }
 
         static IGraph GenerateGragh(int range, int obstructs, bool[] config)
@@ -508,6 +241,7 @@ namespace Routing
                     if (config[index] == false)
                     {
                         config[index] = true;
+                        Console.WriteLine(g.GetRow(index) + ", " + g.GetCol(index));
                         circuit[pc - 1] = index;
                         pc--;
                     }
@@ -516,6 +250,507 @@ namespace Routing
             }
             return circuits;
         }
-       
+
+        private void ManualTest()
+        {
+            int range = 10000;
+            IGraph obs = new Obstruct(new Graph(range, range));
+            IPolygon rect1 = new Rectangle(6000, 0, 10000, 4000);
+            IPolygon rect2 = new Rectangle(2000, 0, 4000, 3000);
+            IPolygon rect3 = new Rectangle(0, 4000, 5000, 7000);
+            IPolygon rect4 = new Rectangle(7000, 5000, 10000, 10000);
+            IPolygon union = new UnionPolygon();
+            union.Add(rect1).Add(rect2).Add(rect3).Add(rect4);
+            PolygonGraph polygonGraph = new PolygonGraph(obs);
+            polygonGraph.RouteOn(union);
+            int[] circ1 =
+            {
+                            polygonGraph.ToNum(6250, 250,0),
+                            polygonGraph.ToNum(7750, 250,0),
+                            polygonGraph.ToNum(6750, 1250,0),
+                            polygonGraph.ToNum(9000, 500,0),
+                            polygonGraph.ToNum(9750, 250,0)
+                        };
+            int[] circ2 =
+            {
+                            polygonGraph.ToNum(6250, 2000,0),
+                            polygonGraph.ToNum(7250, 1750,0),
+                            polygonGraph.ToNum(8250, 1750,0),
+                            polygonGraph.ToNum(7500, 1000,0),
+                            polygonGraph.ToNum(8250, 1250,0)
+                        };
+            int[] circ3 =
+            {
+                            polygonGraph.ToNum(6500, 3500,0),
+                            polygonGraph.ToNum(6500, 2000,0),
+                            polygonGraph.ToNum(7500, 3500,0),
+                            polygonGraph.ToNum(7250, 2750,0),
+                            polygonGraph.ToNum(7750, 2750,0)
+                        };
+            int[] circ4 =
+            {
+                            polygonGraph.ToNum(7250, 500,0),
+                            polygonGraph.ToNum(8750, 1500,0),
+                            polygonGraph.ToNum(8750, 2750,0),
+                            polygonGraph.ToNum(8000, 2250,0),
+                            polygonGraph.ToNum(7000, 2250,0)
+                        };
+            int[] circ5 =
+            {
+                            polygonGraph.ToNum(9750, 1000,0),
+                            polygonGraph.ToNum(9750, 3750,0),
+                            polygonGraph.ToNum(9250, 2500,0),
+                            polygonGraph.ToNum(8000, 3750,0),
+                            polygonGraph.ToNum(8750, 3250,0)
+                        };
+            int[] circ6 =
+            {
+                            polygonGraph.ToNum(2400, 400,0),
+                            polygonGraph.ToNum(3800, 400,0),
+                            polygonGraph.ToNum(3800, 2800,0),
+                            polygonGraph.ToNum(3400, 2800,0),
+                            polygonGraph.ToNum(3600, 2000,0)
+                        };
+            int[] circ7 =
+            {
+                            polygonGraph.ToNum(2200, 0,0),
+                            polygonGraph.ToNum(2200, 800,0),
+                            polygonGraph.ToNum(3000, 800,0),
+                            polygonGraph.ToNum(2600, 1600,0),
+                            polygonGraph.ToNum(2400, 1200,0)
+                        };
+            int[] circ8 =
+            {
+                            polygonGraph.ToNum(2200, 2800,0),
+                            polygonGraph.ToNum(2800, 3000,0),
+                            polygonGraph.ToNum(3400, 3000,0),
+                            polygonGraph.ToNum(4000, 2400,0),
+                            polygonGraph.ToNum(2600, 2400,0)
+                        };
+            int[] circ9 =
+          {
+                            polygonGraph.ToNum(2600, 600,0),
+                            polygonGraph.ToNum(2600, 1800,0),
+                            polygonGraph.ToNum(2800, 1800,0),
+                            polygonGraph.ToNum(2200, 1600,0),
+                            polygonGraph.ToNum(3200, 1200,0)
+                        };
+            int[] circ10 =
+          {
+                            polygonGraph.ToNum(2200, 2600,0),
+                            polygonGraph.ToNum(2400, 2000,0),
+                            polygonGraph.ToNum(3400, 2400,0),
+                            polygonGraph.ToNum(2600, 2200,0),
+                            polygonGraph.ToNum(3000, 2800,0)
+                        };
+            int[] circ11 =
+        {
+                            polygonGraph.ToNum(400, 4600,0),
+                            polygonGraph.ToNum(2400, 4600,0),
+                            polygonGraph.ToNum(1200, 5400,0),
+                            polygonGraph.ToNum(2400, 5400,0),
+                            polygonGraph.ToNum(3200, 5000,0)
+                        };
+            int[] circ12 =
+        {
+                            polygonGraph.ToNum(600, 5600,0),
+                            polygonGraph.ToNum(1400, 4200,0),
+                            polygonGraph.ToNum(1800, 5600,0),
+                            polygonGraph.ToNum(1800, 4800,0),
+                            polygonGraph.ToNum(800, 6400,0)
+                        };
+            int[] circ13 =
+        {
+                            polygonGraph.ToNum(4600, 4800,0),
+                            polygonGraph.ToNum(3200, 4600,0),
+                            polygonGraph.ToNum(1600, 6000,0),
+                            polygonGraph.ToNum(2400, 6200,0),
+                            polygonGraph.ToNum(4600, 6200,0)
+                        };
+            int[] circ14 =
+        {
+                            polygonGraph.ToNum(4200, 4400,0),
+                            polygonGraph.ToNum(4200, 6400,0),
+                            polygonGraph.ToNum(4800, 5600,0),
+                            polygonGraph.ToNum(4000, 5800,0),
+                            polygonGraph.ToNum(2800, 5800,0)
+                        };
+
+            int[] circ15 =
+    {
+                            polygonGraph.ToNum(400, 6200,0),
+                            polygonGraph.ToNum(1600, 6800,0),
+                            polygonGraph.ToNum(4400, 6800,0),
+                            polygonGraph.ToNum(2800, 6400,0),
+                            polygonGraph.ToNum(3600, 6000,0)
+                        };
+
+            int[] circ16 =
+    {
+                            polygonGraph.ToNum(7600, 6000,0),
+                            polygonGraph.ToNum(9000, 6000,0),
+                            polygonGraph.ToNum(7600, 7600,0),
+                            polygonGraph.ToNum(8200, 8000,0),
+                            polygonGraph.ToNum(8600, 7000,0)
+                        };
+            int[] circ17 =
+    {
+                            polygonGraph.ToNum(7200, 5200,0),
+                            polygonGraph.ToNum(7200, 6200,0),
+                            polygonGraph.ToNum(8800, 5200,0),
+                            polygonGraph.ToNum(8400, 6400,0),
+                            polygonGraph.ToNum(8000, 5800,0)
+                        };
+
+            int[] circ18 =
+    {
+                            polygonGraph.ToNum(9600, 5800,0),
+                            polygonGraph.ToNum(7800, 6600,0),
+                            polygonGraph.ToNum(9200, 7000,0),
+                            polygonGraph.ToNum(8000, 7600,0),
+                            polygonGraph.ToNum(8800, 8400,0)
+                        };
+
+            int[] circ19 =
+    {
+                            polygonGraph.ToNum(7200, 9800,0),
+                            polygonGraph.ToNum(9800, 9800,0),
+                            polygonGraph.ToNum(9800, 8200,0),
+                            polygonGraph.ToNum(8200, 9200,0),
+                            polygonGraph.ToNum(9400, 9000,0)
+                        };
+            int[] circ20 =
+{
+                            polygonGraph.ToNum(7200, 7000,0),
+                            polygonGraph.ToNum(7200, 9200,0),
+                            polygonGraph.ToNum(8200, 8600,0),
+                            polygonGraph.ToNum(9800, 6400,0),
+                            polygonGraph.ToNum(9200, 9400,0)
+                        };
+
+            List<int[]> circuits = new List<int[]>
+                        {
+                            circ1,
+                            circ2,
+                            circ3,
+                            circ4,
+                            circ5,
+                            circ6,
+                            circ7,
+                            circ8,
+                            circ9,
+                            circ10,
+                            circ11,
+                            circ12,
+                            circ13,
+                            circ14,
+                            circ15,
+                            circ16,
+                            circ17,
+                            circ18,
+                            circ19,
+                            circ20,
+                        };
+            IGraph justGraph = new Graph(range, range);
+            Solver s = new Solver(polygonGraph);
+            Solver s1 = new Solver(justGraph);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s.FindTrace(justGraph, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для декоратора: " + sw.ElapsedMilliseconds);
+            sw.Restart();
+            s1.FindTrace(justGraph, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для обычного метода: " + sw.ElapsedMilliseconds);
+        }
+
+        private void Test2()
+        {
+            int range = 10000;
+            IGraph anotherJustGraph = new Graph(10000, 10000);
+            Rectangle rectangle = new Rectangle(0, 0, 999, 999);
+            Rectangle rectangle1 = new Rectangle(9000, 0, 9999, 999);
+            Rectangle rectangle2 = new Rectangle(0, 9000, 999, 9999);
+            Rectangle rectangle3 = new Rectangle(9000, 9000, 9999, 9999);
+            Rectangle rectangle4 = new Rectangle(1000, 1000, 8999, 8999);
+
+            UnionPolygon anotherUP = new UnionPolygon();
+            anotherUP.Add(rectangle).Add(rectangle1).Add(rectangle2).Add(rectangle3).Add(rectangle4);
+            PolygonGraph pg = new PolygonGraph(anotherJustGraph);
+            pg.RouteOn(anotherUP);
+
+            bool[] config = new bool[range * range];
+
+            List<int[]> circ = GenerateCircuitsOnRect(config, anotherJustGraph, 1, 20, 1000, 1000, 8999, 8999);
+            foreach (var t in circ)
+            {
+                foreach (int n in t)
+                    Console.WriteLine(n + "  ");
+                //Console.WriteLine();
+            }
+
+            Solver s1 = new Solver(anotherJustGraph);
+            //Solver s2 = new Solver(pg);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s1.FindTrace(pg, circ);
+            sw.Stop();
+            Console.WriteLine("Время для декоратора: " + sw.ElapsedMilliseconds);
+            //sw.Start();
+            //s2.FindTrace(anotherJustGraph, circ);
+            //sw.Stop();
+            //Console.WriteLine("Время для обычного метода: " + sw.ElapsedMilliseconds);
+        }
+
+        private void Test3()
+        {
+            bool[] config = new bool[10000 * 10000];
+            IGraph testGraph = GenerateGragh(10000, 0, config);
+            List<int[]> c1 = GenerateCircuitsOnRect(config, testGraph, 10, 5, 0, 0, 2000, 4000);
+            List<int[]> c2 = GenerateCircuitsOnRect(config, testGraph, 10, 5, 4000, 500, 4999, 3500);
+            List<int[]> c = c1.Concat(c2).ToList();
+
+
+            Rectangle r1 = new Rectangle(0, 0, 2000, 4000);
+            Rectangle r2 = new Rectangle(4000, 500, 4999, 3500);
+            UnionPolygon unionPolygon = new UnionPolygon();
+            unionPolygon.Add(r1).Add(r2);
+            PolygonGraph pg = new PolygonGraph(testGraph);
+            pg.RouteOn(unionPolygon);
+
+            foreach (var t in c)
+            {
+                foreach (int n in t)
+                    Console.Write(n + "  ");
+                Console.WriteLine();
+            }
+            Stopwatch sw = new Stopwatch();
+            Solver s1 = new Solver(testGraph);
+            Solver s2 = new Solver(pg);
+            sw.Start();
+            s1.FindTrace(testGraph, c);
+            sw.Stop();
+            Console.WriteLine("Время: " + sw.ElapsedMilliseconds);
+            sw.Start();
+            s2.FindTrace(pg, c);
+            sw.Stop();
+            Console.WriteLine("Время: " + sw.ElapsedMilliseconds);
+        }
+
+        private void Test4()
+        {
+            int range = 10000;
+            IGraph simpleGraph = new Graph(range, range);
+            Rectangle r1 = new Rectangle(2000, 0, 5000, range - 1);
+            Rectangle r2 = new Rectangle(5000, 3000, range-1, 6000);
+            UnionPolygon up = new UnionPolygon();
+            up.Add(r1).Add(r2);
+            int[] circ1 =
+            {
+                simpleGraph.ToNum(2100, 100,0),
+                simpleGraph.ToNum(3000, 50, 0),
+                simpleGraph.ToNum(4000, 340,0),
+                simpleGraph.ToNum(3100, 8000, 0),
+                simpleGraph.ToNum(4000, 9000,0),
+                simpleGraph.ToNum(5000, 7000,0),
+                simpleGraph.ToNum(2000, 1000,0),
+                simpleGraph.ToNum(2000, 1500,0),
+                simpleGraph.ToNum(2000, 3000,0),
+            };
+
+            int[] circ2 =
+            {
+                simpleGraph.ToNum(2100, 8000,0),
+                simpleGraph.ToNum(2900, 8000, 0),
+                simpleGraph.ToNum(4900, 8000,0),
+                simpleGraph.ToNum(6000, 5900, 0),
+                simpleGraph.ToNum(7100, 5900,0),
+                simpleGraph.ToNum(9000, 5900,0),
+                simpleGraph.ToNum(2100, 6000,0),
+                simpleGraph.ToNum(2100, 6500,0),
+                simpleGraph.ToNum(2100, 7000,0),
+            };
+
+            List<int[]> circuits = new List<int[]> { circ1, circ2 };
+            PolygonGraph pg = new PolygonGraph(simpleGraph);
+            pg.RouteOn(up);
+            Solver s1 = new Solver(pg);
+            Solver s2 = new Solver(simpleGraph);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s1.FindTrace(pg, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для декоратора: " + sw.ElapsedMilliseconds);
+            sw.Start();
+            s2.FindTrace(simpleGraph, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для обычного метода: " + sw.ElapsedMilliseconds);
+        }
+
+        void Test5()
+        {
+            int range = 10000;
+            bool[] config = new bool[range * range];
+            IGraph simpleGraph = new Graph(range, range);
+            Rectangle r11 = new Rectangle(500, 500, 7000, 1500);
+            Rectangle r12 = new Rectangle(6000, 500, 7000, 4500);
+
+            Rectangle r21 = new Rectangle(2000, 3000, 5000, 4000);
+
+            Rectangle r31 = new Rectangle(0, 8500, 4500, 9500);
+            Rectangle r32 = new Rectangle(3500, 7000, 4500, 9500);
+
+            Rectangle r41 = new Rectangle(2500, 4500, 8500, 5500);
+            Rectangle r42 = new Rectangle(7500, 2000, 8500, 5500);
+
+            Rectangle r51 = new Rectangle(500, 2000, 3500, 2500);
+            Rectangle r52 = new Rectangle(500, 2500, 1000, 3000);
+            Rectangle r53 = new Rectangle(1500, 2000, 2000, 6500);
+            Rectangle r54 = new Rectangle(1500, 6000, 3500, 6500);
+
+            Rectangle r61 = new Rectangle(9000, 1000, 9500, 7000);
+            Rectangle r62 = new Rectangle(6000, 6500, 9500, 7000);
+            Rectangle r63 = new Rectangle(8000, 7000, 8500, 8500);
+
+            Rectangle r71 = new Rectangle(4000, 6000, 5500, 6500);
+            Rectangle r72 = new Rectangle(5000, 6000, 5500, 9500);
+            Rectangle r73 = new Rectangle(5000, 9000, 9500, 9500);
+            Rectangle r74 = new Rectangle(9000, 7500, 9500, 9500);
+            Rectangle r75 = new Rectangle(7000, 7500, 7500, 9500);
+
+            UnionPolygon up = new UnionPolygon();
+            up.Add(r11).Add(r12);
+            up.Add(r21);
+            up.Add(r31).Add(r32);
+            up.Add(r41).Add(r42);
+            up.Add(r51).Add(r52).Add(r53).Add(r54);
+            up.Add(r61).Add(r62).Add(r63);
+            up.Add(r71).Add(r72).Add(r73).Add(r74).Add(r75);
+            int[] circ1 =
+            {
+                simpleGraph.ToNum(510, 510,0),
+                simpleGraph.ToNum(600, 1000, 0),
+                simpleGraph.ToNum(550, 900,0), 
+                simpleGraph.ToNum(1100, 1400, 0),
+                simpleGraph.ToNum(890, 650,0),
+                simpleGraph.ToNum(6050, 3500,0),
+                simpleGraph.ToNum(6700, 4000,0),
+                simpleGraph.ToNum(6350, 3910,0),
+                simpleGraph.ToNum(6900, 2500,0),
+                simpleGraph.ToNum(6600, 4100,0),
+            };
+
+            int[] circ2 =
+            {
+                simpleGraph.ToNum(2992, 3319,0),
+                simpleGraph.ToNum(2867, 3824, 0),
+                simpleGraph.ToNum(2702, 3219,0),
+                simpleGraph.ToNum(2558, 3106, 0),
+                simpleGraph.ToNum(2697, 3470,0),
+                simpleGraph.ToNum(4373, 3501,0),
+                simpleGraph.ToNum(4662, 3067,0),
+                simpleGraph.ToNum(4309, 3678,0),
+                simpleGraph.ToNum(4704, 3449,0),
+                simpleGraph.ToNum(4776, 3279,0),
+            };
+
+            int[] circ3 =
+            {
+
+                simpleGraph.ToNum(550, 9255,0),
+                simpleGraph.ToNum(373, 9183, 0),
+                simpleGraph.ToNum(969, 8640,0),
+                simpleGraph.ToNum(525, 8649, 0),
+                simpleGraph.ToNum(478, 9448,0),
+                simpleGraph.ToNum(4050, 7755,0),
+                simpleGraph.ToNum(3873, 7683,0),
+                simpleGraph.ToNum(4469, 7140,0),
+                simpleGraph.ToNum(4025, 7149,0),
+                simpleGraph.ToNum(3978, 7948,0),
+            };
+
+            int[] circ4 =
+            {
+                simpleGraph.ToNum(2537, 4887,0),
+                simpleGraph.ToNum(3181, 4777, 0),
+                simpleGraph.ToNum(2844, 4648,0),
+                simpleGraph.ToNum(2763, 4519, 0),
+                simpleGraph.ToNum(2572, 5228,0),
+                simpleGraph.ToNum(7537, 2387,0),
+                simpleGraph.ToNum( 8181, 2277,0),
+                simpleGraph.ToNum(7844, 2148,0),
+                simpleGraph.ToNum(7763, 2019,0),
+                simpleGraph.ToNum(7572, 2728,0),
+            };
+
+            int[] circ5 =
+            {
+                simpleGraph.ToNum(3472, 2492,0),
+                simpleGraph.ToNum(3471, 2342, 0),
+                simpleGraph.ToNum(972, 2992,0),
+                simpleGraph.ToNum(971, 2842, 0),
+                simpleGraph.ToNum(858, 2595,0),
+                simpleGraph.ToNum(802, 2657,0),
+                simpleGraph.ToNum(3358, 2095,0),
+                simpleGraph.ToNum(3472, 6492,0),
+                simpleGraph.ToNum(3471, 6342,0),
+                simpleGraph.ToNum(3358, 6095,0),
+            };
+
+            int[] circ6 =
+           {
+                simpleGraph.ToNum(9306, 1487,0),
+                simpleGraph.ToNum(9049, 1339, 0),
+                simpleGraph.ToNum(6306, 6987,0),
+                simpleGraph.ToNum(9170, 1022, 0),
+                simpleGraph.ToNum(6049, 6839,0),
+                simpleGraph.ToNum(6170, 6522,0),
+                simpleGraph.ToNum(6471, 6566,0),
+                simpleGraph.ToNum(8306, 8487,0),
+                simpleGraph.ToNum(8049, 8339,0),
+                simpleGraph.ToNum(8170, 8022,0),
+            };
+
+            int[] circ7 =
+           {
+                simpleGraph.ToNum(9089, 7817,0),
+                simpleGraph.ToNum(9242, 7781, 0),
+                simpleGraph.ToNum(7089, 7817,0),
+                simpleGraph.ToNum(9250, 7565, 0),
+                simpleGraph.ToNum(7242, 7781,0),
+                simpleGraph.ToNum(7250, 7565,0),
+                simpleGraph.ToNum(7481, 7636,0),
+                simpleGraph.ToNum(4089, 6317,0),
+                simpleGraph.ToNum(4242, 6281,0),
+                simpleGraph.ToNum(4250, 6065,0),
+            };
+
+            List<int[]> circuits = new List<int[]> {circ1, circ2, circ3, circ4, circ5, circ6, circ7 };
+
+            foreach (var circ in circuits)
+                foreach (int n in circ)
+                    config[n] = true;
+            simpleGraph = GenerateGragh(range, 50/100 * range * range, config);
+
+            PolygonGraph pg = new PolygonGraph(simpleGraph);
+            pg.RouteOn(up);
+            Solver s1 = new Solver(pg);
+            Solver s2 = new Solver(simpleGraph);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            s1.FindTrace(pg, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для декоратора: " + sw.ElapsedMilliseconds);
+            
+            sw.Start();
+            s2.FindTrace(simpleGraph, circuits);
+            sw.Stop();
+            Console.WriteLine("Время для обычного метода: " + sw.ElapsedMilliseconds);
+            Console.WriteLine("Нереализованные цепи: " + s2.GetFailReport().Count);
+        }
+
+
+
     }
 }
