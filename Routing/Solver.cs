@@ -9,21 +9,21 @@ namespace Routing
     public class Solver
     {
         private int[] inGroupTrace;                 //массив меток для каждого контакта 0-не трассирован, 1-принадлежит цепи 1
-        private Dictionary<int, List<int>> fail;    //Key: номер цепи, Value: список цепей, которые не удалось соединить 
-
+        private Reporter failReporter;
         public Solver(IGraph g)
         {
             inGroupTrace = new int[g.GetN()];
             for (int i = 0; i < inGroupTrace.Length; i++)
                 inGroupTrace[i] = 0;
-
-            fail = new Dictionary<int, List<int>>();
+            failReporter = new Reporter();          
         }
 
         private void ResetWave(int[] wave)
         {
             for (int i = 0; i < wave.Length; i++)
                 wave[i] = -1;
+            foreach (var t in failReporter)
+                t.
         }
 
         private int[] GetWave(IGraph obs, int[] wave,int src, int dest)
@@ -58,11 +58,9 @@ namespace Routing
             int group = 0;
             for (int i = 0; i < inGroupTrace.Length; i++)
                 inGroupTrace[i] = 0;
-            fail = new Dictionary<int, List<int>>();
             foreach (var circ in circuits)
             {
                 group++;
-                fail.Add(group, null);
                 foreach (var pin in circ)
                     inGroupTrace[pin] = group;
             }
