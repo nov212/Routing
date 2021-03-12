@@ -8,25 +8,25 @@ namespace Routing
 {
     public class Solver
     {
+        const int DISABLE = -1;
+        const int NONE = 0;
         private int[] inGroupTrace;                 //массив меток для каждого контакта 0-не трассирован, 1-принадлежит цепи 1
         private Reporter failReporter;
         public Solver(IGraph g)
         {
             inGroupTrace = new int[g.GetN()];
             for (int i = 0; i < inGroupTrace.Length; i++)
-                inGroupTrace[i] = 0;
+                inGroupTrace[i] = NONE;
             failReporter = new Reporter();          
         }
 
         private void ResetWave(int[] wave)
         {
             for (int i = 0; i < wave.Length; i++)
-                wave[i] = -1;
-            foreach (var t in failReporter)
-                t.
+                wave[i] = DISABLE;
         }
 
-        private int[] GetWave(IGraph obs, int[] wave,int src, int dest)
+        private void GetWave(IGraph obs, int[] wave,int src, int dest)
         {
             int currentNode = src;
             ResetWave(wave);
@@ -34,7 +34,7 @@ namespace Routing
             PerPut Graph_Config = new PerPut(obs.GetN());
             Graph_Config.MoveLeft(src);
             wave[src] = 0;
-            int group = inGroupTrace[src];
+            int group = inGroupTrace[src]; //номер рассматриваемой группы
             pinsQueue.Enqueue(src);
             while (pinsQueue.Count()!=0)
             {
@@ -43,21 +43,22 @@ namespace Routing
                     break;
                 foreach (int n in obs.GetAdj(currentNode))
                 {
-                    if ((inGroupTrace[n]==0 || inGroupTrace[n]==group) && Graph_Config.MoveLeft(n))
+
+                    //если узел ещё не помечен или помечен номером текущей группы узлов и в обоих случаях узел ещё не рассматривался
+                    if ((inGroupTrace[n]==NONE || inGroupTrace[n]==group) && Graph_Config.MoveLeft(n))
                     {
                         wave[n] = wave[currentNode] + 1;
                         pinsQueue.Enqueue(n);
                     }
                 }
             }
-            return wave;
         }
 
         private void InitCircuitGroups(IEnumerable<int[]> circuits)
         {
             int group = 0;
             for (int i = 0; i < inGroupTrace.Length; i++)
-                inGroupTrace[i] = 0;
+                inGroupTrace[i] = NONE;
             foreach (var circ in circuits)
             {
                 group++;
@@ -99,7 +100,7 @@ namespace Routing
                         sub.AddHorisontalsAroundRow(sub.GetRow(start), rad, rad);
                         sub.AddVerticalsAroundCol(sub.GetCol(dest), rad, rad);
                         sub.AddHorisontalsAroundRow(sub.GetRow(dest), rad, rad);
-                        wave = GetWave(sub, wave,start, dest);
+                        GetWave(sub, wave,start, dest);
                         if (wave[dest] > -1)
                         {
                             PinToPinTrace = Route(sub, wave, start, dest);
@@ -109,14 +110,8 @@ namespace Routing
 
                     //если в результате всех расширений сетки найти путь не удалось,
                     //то применяем алгоритм на всей
-                    if (wave[dest]==-1)
-                    {
-                        wave = GetWave(g, wave, start, dest);
-                        if (wave[dest] == -1)
-                            FailReport(inGroupTrace[dest], dest);
-                        else
-                        PinToPinTrace = Route(g, wave, start, dest);
-                    }
+                    GetWave(g, wave, start, dest);
+                    PinToPinTrace = Route(g, wave, start, dest);                    
                     foreach (var pin in PinToPinTrace)
                         Circuit.Add(pin);
                 }
@@ -133,10 +128,14 @@ namespace Routing
             List<List<int>> solution = new List<List<int>>();  //построенные цепи
             List<int> PinToPinTrace = null; //соединение двух контактов
             List<int> Circuit = null;  //соединение для всей цепи
+
+            failReporter.Clear();
             int start = 0;
             int[] wave=new int[g.GetN()];
+
             //пометим контакты номером цепи
             InitCircuitGroups(circuits);
+
             foreach (var trace in circuits)
             {
                 Circuit = new List<int>();
@@ -147,18 +146,12 @@ namespace Routing
                 {
                     if (dest == start)
                         continue;
-                   GetWave(g, wave,start, dest);
-                    if (wave[dest] > -1)
-                    {
-                        PinToPinTrace = Route(g, wave, start, dest);
-                        foreach (var cond in PinToPinTrace)
-                            Circuit.Add(cond);
-                    }
-                    else
-                    {
-                        FailReport(inGroupTrace[dest], dest);
-                        Console.WriteLine(inGroupTrace[dest] + " " + dest);
-                    }
+
+                   GetWave(g, wave,start, dest);    //пуск волны
+                    PinToPinTrace = Route(g, wave, start, dest); //путь между двумя точками
+                    if (PinToPinTrace.Count>0)
+                        foreach (int node in PinToPinTrace)
+                            Circuit.Add(node);                   
                 }
                 if (Circuit.Count() > 0)
                     solution.Add(Circuit);
@@ -257,93 +250,85 @@ namespace Routing
         private List<int> Route(IGraph g, int[] wave, int src, int dest)
         {
             List<int> trace = new List<int>(); //соединение контактов src и dest
-            Queue<int> pinsQueue = new Queue<int>();
-            int price;
-            int currentNode = 0;
-            int currentGroup = 0;
-            int[] prev = new int[g.GetN()];
-            int[] cost = new int[g.GetN()];
+
+            //возвращаем пустой список, если пути нет и добавляем узел в список нетрассированных
+            if (wave[dest] == DISABLE)
+            {
+                failReporter.AddNode(inGroupTrace[dest], dest);
+                return trace;
+            }
+
+            //возвращает путь со стартовым узлом, если начальный и конечный узлы совпадают 
             if (src == dest)
             {
                 trace.Add(src);
                 return trace;
             }
 
+            Queue<int> pinsQueue = new Queue<int>();
+            int price;
+            int currentNode = 0;
+            int currentGroup = 0;
+            int[] prev = new int[g.GetN()];
+            int[] cost = new int[g.GetN()];
+
+
             //инициализация массивов prev и cost
             for (int i=0;i<g.GetN();i++)
             {
-                prev[i] = -1;
+                prev[i] = DISABLE;
                 cost[i] = Int32.MaxValue;
             }
-            if (wave[dest] > -1)
-            {
                 currentGroup = inGroupTrace[dest];
                 currentNode = dest;
                 cost[currentNode]=0;
-                foreach (int n in GetNext(g, wave, currentNode))
-                {
-                        prev[n] = currentNode;
-                        cost[n] = 1;
-                        pinsQueue.Enqueue(n);
-                }
-                while (pinsQueue.Count()>0)
-                {
-                    currentNode = pinsQueue.Dequeue();
-                    //условие выхода, если текущая вершина принадлежит текущей группе цепи
-                    if (inGroupTrace[currentNode] == currentGroup && currentNode != dest)
-                        break;
 
-                    //проверка, есть ли узлы, в которые можно перейти в заданном напавлении
-                    foreach (int next in GetNext(g, wave, currentNode))
+            //заполнение очереди соседями стартового узла
+            foreach (int n in g.GetAdj(currentNode))
+            {
+                if (wave[n] == wave[currentNode] - 1)
+                {
+                    prev[n] = currentNode;
+                    cost[n] = 1;
+                    pinsQueue.Enqueue(n);
+                }
+            }
+
+            while (pinsQueue.Count() > 0)
+            {
+                currentNode = pinsQueue.Dequeue();
+                //условие выхода, если текущая вершина принадлежит текущей группе цепи
+                if (inGroupTrace[currentNode] == currentGroup && currentNode != dest)
+                    break;
+
+                //проверка, есть ли узлы, в которые можно перейти в заданном напавлении
+                foreach (int next in g.GetAdj(currentNode))
+                {
+                    if (wave[next] == wave[currentNode] - 1)
                     {
-                            price = GetPrice(g, prev, currentNode, next);
-                            if (prev[next]==-1 || cost[next] > cost[currentNode]+price)
-                            {
-                                cost[next] = cost[currentNode]+price;
-                                prev[next] = currentNode;
-                                pinsQueue.Enqueue(next);
-                            } 
+                        price = GetPrice(g, prev, currentNode, next);
+                        if (prev[next] == DISABLE || cost[next] > cost[currentNode] + price)
+                        {
+                            cost[next] = cost[currentNode] + price;
+                            prev[next] = currentNode;
+                            pinsQueue.Enqueue(next);
+                        }
                     }
                 }
+            }
 
                 //построение трассы
-                while (prev[currentNode] != -1)
+                while (prev[currentNode] != DISABLE)
                 {
                     trace.Add(currentNode);
                     inGroupTrace[currentNode] = currentGroup;
-                    //inGroupTrace[prev[currentNode]] = currentGroup;
                     currentNode = prev[currentNode];
                 }
                 inGroupTrace[currentNode] = currentGroup;
                 trace.Add(currentNode);
                 pinsQueue.Clear();
-            }
             return trace;
-        }
-
-        private void FailReport(int group, int pin)
-        {
-            if (fail[group] == null)
-                fail[group] = new List<int>();
-            fail[group].Add(pin);
-        }
-
-        public void ClearFailReport()
-        {
-            fail.Clear();
-        }
-
-        public Dictionary<int, List<int>> GetFailReport()
-        {
-            return fail;
-        }
-
-        private IEnumerable<int> GetNext(IGraph g, int[] wave, int node)
-        {
-            foreach (int n in g.GetAdj(node))
-                if (wave[n] == wave[node] - 1)
-                    yield return n;
-        }
+        }   
 
         private int GetPrice(IGraph g, int[] prev, int currentNode, int nextNode)
         {
@@ -358,9 +343,9 @@ namespace Routing
             return price;
         }
 
-        private void ResetPrevCost(ref int[] prev, ref int[] cost)
+        public Reporter GetFailReport()
         {
-
+            return failReporter;
         }
     }
 }

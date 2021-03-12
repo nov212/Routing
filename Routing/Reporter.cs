@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Routing
 {
-    class Reporter : IEnumerable<KeyValuePair<int, List<int>>>
+    public class Reporter : IEnumerable<KeyValuePair<int, List<int>>>
     {
         private readonly Dictionary<int, List<int>> untraced; // Key: номер цепи, Value: список цепей, которые не удалось соединить
         public Reporter()
